@@ -28,34 +28,29 @@ export function IntroForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-md rounded-[2rem] border border-ink/10 bg-white/75 p-8 shadow-card backdrop-blur"
+      className="mt-10 w-full rounded-[1.75rem] border border-fuchsia-400/20 bg-black/45 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur"
     >
-      <p className="text-sm uppercase tracking-[0.35em] text-ember">PsyMatch</p>
-      <h1 className="mt-4 text-4xl font-semibold leading-tight">
-        Historia da psicologia comportamental com clima de app de encontro.
-      </h1>
-      <p className="mt-4 text-base leading-7 text-ink/75">
-        Digite seu nome e percorra os perfis em ordem cronologica. Se curtir o
-        autor, de like e receba um match com resposta pronta.
+      <p className="text-sm uppercase tracking-[0.35em] text-fuchsia-200">Seu nome</p>
+      <h2 className="mt-2 text-3xl font-semibold leading-tight text-white">
+        Comece a jornada
+      </h2>
+      <p className="mt-3 text-base leading-7 text-white/75">
+        Digite seu nome e descubra os perfis na ordem da linha do tempo.
       </p>
 
-      <label className="mt-8 block text-sm font-semibold uppercase tracking-[0.2em] text-ink/70">
-        Seu nome
-      </label>
       <input
         value={name}
         onChange={(event) => setName(event.target.value)}
-        placeholder="Ex.: Igor"
-        className="mt-3 w-full rounded-full border border-ink/15 bg-cream px-5 py-4 text-lg outline-none transition focus:border-ember"
+        placeholder="Ex.: Lara"
+        className="mt-6 w-full rounded-full border border-white/20 bg-black/35 px-5 py-4 text-lg text-white outline-none transition focus:border-fuchsia-300 placeholder:text-white/40"
       />
 
       <button
         type="submit"
-        className="mt-6 w-full rounded-full bg-ink px-6 py-4 text-lg font-semibold text-cream transition hover:bg-ember"
+        className="mt-5 w-full rounded-full bg-gradient-to-r from-fuchsia-500 via-rose-500 to-red-500 px-6 py-4 text-lg font-semibold text-white shadow-lg shadow-fuchsia-500/40 transition hover:from-fuchsia-400 hover:to-rose-400"
       >
-        Comecar jornada
+        Iniciar
       </button>
     </form>
   );
 }
-

@@ -7,7 +7,7 @@
 }
 
 body {
-  @apply min-h-screen bg-cream bg-grain bg-[size:16px_16px] text-ink;
+  @apply min-h-screen bg-[radial-gradient(circle_at_top,_#fff3ff_0%,_#ffe5ec_30%,_#ffccd9_100%)] bg-grain bg-[size:16px_16px] text-ink;
 }
 
 * {

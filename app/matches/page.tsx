@@ -19,53 +19,50 @@ export default function MatchesPage() {
     setLikedSlugs(state.likedSlugs);
   }, []);
 
-  const matches = useMemo(
-    () => psychologists.filter((profile) => likedSlugs.includes(profile.slug)),
-    [likedSlugs],
-  );
+  const matches = useMemo(() => {
+    const ordered = [...psychologists].sort((a, b) => a.order - b.order);
+    return ordered.filter((profile) => likedSlugs.includes(profile.slug));
+  }, [likedSlugs]);
 
   return (
-    <main className="mx-auto min-h-screen max-w-5xl px-6 py-10">
+    <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-8 text-white">
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-ember">
-            Biblioteca afetiva
-          </p>
-          <h1 className="mt-2 text-4xl font-semibold">
+          <p className="text-sm uppercase tracking-[0.35em] text-white/65">Biblioteca afetiva</p>
+          <h1 className="mt-2 text-3xl font-semibold">
             Matches de {userName || "quem estuda com criterio"}
           </h1>
         </div>
 
         <Link
           href="/discover"
-          className="rounded-full border border-ink/15 bg-white px-5 py-3 font-semibold shadow-sm"
+          className="rounded-full border border-white/20 bg-black/45 px-4 py-2 font-semibold text-white shadow-sm backdrop-blur"
         >
-          Voltar para descoberta
+          Voltar
         </Link>
       </header>
 
       {matches.length === 0 ? (
-        <section className="mt-10 rounded-[2rem] bg-white p-8 shadow-card">
+        <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
           <h2 className="text-2xl font-semibold">Ainda sem matches</h2>
-          <p className="mt-3 max-w-2xl leading-7 text-ink/75">
-            Quando voce der like em algum perfil, ele aparece aqui com a
-            mensagem desbloqueada.
+          <p className="mt-3 max-w-2xl leading-7 text-white/70">
+            Quando voce der like em algum perfil, ele aparece aqui com a mensagem desbloqueada.
           </p>
         </section>
       ) : (
-        <section className="mt-10 grid gap-6 md:grid-cols-2">
+        <section className="mt-8 grid gap-4">
           {matches.map((profile) => (
             <article
               key={profile.slug}
-              className="rounded-[2rem] bg-white p-7 shadow-card"
+              className="rounded-[2rem] border border-white/12 bg-gradient-to-b from-[#1a1820] via-[#16141d] to-[#121018] p-7 shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
             >
-              <p className="text-sm uppercase tracking-[0.3em] text-ember">
-                Match cronologico #{profile.order}
+              <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-200">
+                Match #{profile.order}
               </p>
-              <h2 className="mt-3 text-3xl font-semibold">{profile.name}</h2>
-              <p className="mt-2 text-ink/70">{profile.school}</p>
-              <p className="mt-5 leading-7 text-ink/80">{profile.matchMessage}</p>
-              <p className="mt-5 rounded-[1.25rem] bg-cream px-4 py-3 text-sm leading-6 text-ink/70">
+              <h2 className="mt-3 text-2xl font-semibold text-white">{profile.name}</h2>
+              <p className="mt-1 text-white/75">{profile.school}</p>
+              <p className="mt-4 leading-7 text-white/90">{profile.matchMessage}</p>
+              <p className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/35 px-4 py-3 text-sm leading-6 text-white/75">
                 Destaque historico: {profile.experimentTitle}
               </p>
             </article>
@@ -75,4 +72,3 @@ export default function MatchesPage() {
     </main>
   );
 }
-

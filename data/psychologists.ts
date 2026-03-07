@@ -4,6 +4,7 @@ export type Psychologist = {
   name: string;
   ageLabel: string;
   role: string;
+  photos: string[];
   distanceLabel: string;
   sign: string;
   school: string;
@@ -22,6 +23,11 @@ export const psychologists: Psychologist[] = [
     slug: "john-broadus-watson",
     order: 1,
     name: "John Broadus Watson",
+    photos: [
+      "/placeholders/psych-1.svg",
+      "/placeholders/psych-3.svg",
+      "/placeholders/psych-2.svg",
+    ],
     ageLabel: "35 anos",
     role: "Psicologo e Fiscal de Atitudes",
     distanceLabel: "A 2 km de voce (to de olho no seu comportamento)",
@@ -48,6 +54,11 @@ export const psychologists: Psychologist[] = [
     slug: "burrhus-frederic-skinner",
     order: 2,
     name: "Burrhus Frederic Skinner",
+    photos: [
+      "/placeholders/psych-2.svg",
+      "/placeholders/psych-1.svg",
+      "/placeholders/psych-3.svg",
+    ],
     ageLabel: "44 anos",
     role: "Engenheiro de Pombos e Sommelier de Consequencias",
     distanceLabel: "A 10 km de voce (num esquema de razao variavel)",

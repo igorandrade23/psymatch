@@ -10,12 +10,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        cream: "#f7f1e8",
-        ember: "#c75b39",
+        cream: "#fff1f2",
+        ember: "#ff4f81",
         ink: "#1f1a17",
-        moss: "#647a57",
-        blush: "#df9b8d",
-        gold: "#d9b05f",
+        moss: "#3cb7bf",
+        blush: "#ff9eb7",
+        gold: "#ffd166",
       },
       boxShadow: {
         card: "0 18px 50px rgba(45, 31, 21, 0.18)",
