@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Psychologist } from "@/data/psychologists";
 
@@ -62,12 +63,19 @@ export function MatchModal({ profile, userName, onClose }: MatchModalProps) {
               {profile.name}
             </h2>
             <p className="mt-2 text-sm text-white/75">
-              {userName}, Seu match enviou uma mensagem!
+              {userName}, voce recebeu um novo chat.
             </p>
 
-            <div className="mt-5 rounded-[1.5rem] border border-fuchsia-300/25 bg-black/50 p-5 text-base leading-7 text-white/90 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
-              “{profile.matchMessage}”
-            </div>
+            <p className="mt-4 text-sm leading-6 text-white/75">
+              Abra a aba de mensagens para ler e responder.
+            </p>
+
+            <Link
+              href="/messages"
+              className="mt-5 block w-full rounded-full border border-sky-300/35 bg-sky-500/20 px-4 py-3 text-center text-sm font-semibold tracking-[0.08em] text-sky-100 shadow-lg shadow-sky-500/30 transition hover:scale-[1.01] sm:text-base"
+            >
+              Ir para mensagens
+            </Link>
 
             <button
               type="button"

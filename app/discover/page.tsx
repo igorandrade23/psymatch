@@ -1,30 +1,68 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MatchModal } from "@/components/match-modal";
 import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
-import { loadState, saveState } from "@/lib/storage";
+import { ensureChatForProfile, removeChatForProfile } from "@/lib/chats";
+import { loadChats, loadState, saveChats, saveState } from "@/lib/storage";
+
+const ACTION_PARTICLES = [
+  { x: -130, y: -70, delay: 0.02 },
+  { x: -96, y: 34, delay: 0.06 },
+  { x: -58, y: -98, delay: 0.1 },
+  { x: 0, y: -118, delay: 0.14 },
+  { x: 58, y: -98, delay: 0.18 },
+  { x: 96, y: 34, delay: 0.22 },
+  { x: 130, y: -70, delay: 0.26 },
+];
+const SUPERLIKE_PARTICLES = [
+  { x: -180, y: -210, delay: 0.01 },
+  { x: -130, y: -280, delay: 0.04 },
+  { x: -82, y: -235, delay: 0.07 },
+  { x: -40, y: -315, delay: 0.1 },
+  { x: 0, y: -350, delay: 0.13 },
+  { x: 40, y: -315, delay: 0.16 },
+  { x: 82, y: -235, delay: 0.19 },
+  { x: 130, y: -280, delay: 0.22 },
+  { x: 180, y: -210, delay: 0.25 },
+];
+const ACTION_EFFECT_DURATION_MS = 520;
+const MATCH_MODAL_DELAY_MS = 560;
 
 export default function DiscoverPage() {
+  type ActionType = "left" | "right" | "super";
   const orderedProfiles = useMemo(
     () => [...psychologists].sort((a, b) => a.order - b.order),
     [],
   );
+  const router = useRouter();
   const [userName, setUserName] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedSlugs, setLikedSlugs] = useState<string[]>([]);
-  const [matchedSlug, setMatchedSlug] = useState<string | null>(null);
+  const [newMessageProfile, setNewMessageProfile] = useState<(typeof psychologists)[number] | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
-  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | "super" | null>(null);
-  const [swipeHint, setSwipeHint] = useState<"left" | "right" | "super" | null>(null);
+  const [swipeDirection, setSwipeDirection] = useState<ActionType | null>(null);
+  const [swipeHint, setSwipeHint] = useState<ActionType | null>(null);
   const [swipeHistory, setSwipeHistory] = useState<
-    Array<{ slug: string; action: "left" | "right" | "super" }>
+    Array<{ slug: string; action: ActionType }>
   >([]);
+  const [actionEffect, setActionEffect] = useState<{
+    id: number;
+    type: ActionType;
+  } | null>(null);
+  const [feedbackModal, setFeedbackModal] = useState<{
+    type: ActionType;
+    profile: (typeof psychologists)[number];
+    message: string;
+  } | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const swipeTimerRef = useRef<number | null>(null);
+  const actionEffectTimerRef = useRef<number | null>(null);
   const actionGuardRef = useRef(false);
 
   useEffect(() => {
@@ -52,7 +90,7 @@ export default function DiscoverPage() {
   }, [orderedProfiles.length]);
 
   const profile = orderedProfiles[currentIndex];
-  const isMatchPending = Boolean(matchedSlug);
+  const isFlowLocked = isTransitioning || Boolean(feedbackModal);
 
   useEffect(() => {
     if (!userName) {
@@ -61,11 +99,6 @@ export default function DiscoverPage() {
 
     saveState({ userName, currentIndex, likedSlugs });
   }, [currentIndex, likedSlugs, userName]);
-
-  const matchedProfile = useMemo(
-    () => psychologists.find((item) => item.slug === matchedSlug) ?? null,
-    [matchedSlug],
-  );
 
   const overlaySwipe = useMemo(() => {
     const direction = swipeHint ?? swipeDirection;
@@ -103,85 +136,155 @@ export default function DiscoverPage() {
     setCurrentIndex((current) => Math.min(current + 1, orderedProfiles.length));
   }
 
-  function handleAction(type: "left" | "right" | "super") {
-    if (isTransitioning || isMatchPending || !profile || actionGuardRef.current) {
+  function randomFrom(messages: string[] | undefined, fallback: string) {
+    if (!messages || messages.length === 0) {
+      return fallback;
+    }
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    return messages[randomIndex];
+  }
+
+  function handleAction(type: ActionType) {
+    if (isFlowLocked || !profile || actionGuardRef.current) {
       return;
     }
+
+    const feedbackMessage =
+      type === "left"
+        ? randomFrom(profile.dislikes, "Nao rolou quimica comportamental desta vez.")
+        : randomFrom(profile.likes, "Curti seu estilo, vamos continuar.");
 
     actionGuardRef.current = true;
     setIsTransitioning(true);
     setSwipeDirection(type);
+    setActionEffect({ id: Date.now(), type });
     setSwipeHistory((current) => [...current, { slug: profile.slug, action: type }]);
+
+    if (actionEffectTimerRef.current !== null) {
+      window.clearTimeout(actionEffectTimerRef.current);
+    }
+    actionEffectTimerRef.current = window.setTimeout(() => {
+      setActionEffect(null);
+      actionEffectTimerRef.current = null;
+    }, ACTION_EFFECT_DURATION_MS);
+
+    if (swipeTimerRef.current !== null) {
+      window.clearTimeout(swipeTimerRef.current);
+    }
 
     if (type === "right" || type === "super") {
       if (!likedSlugs.includes(profile.slug)) {
         setLikedSlugs((current) => [...current, profile.slug]);
       }
-
-      setMatchedSlug(profile.slug);
-    }
-
-    if (type === "left") {
-      setMatchedSlug(null);
-    }
-
-    if (swipeTimerRef.current !== null) {
-      window.clearTimeout(swipeTimerRef.current);
-    }
-
-    if (type === "right" || type === "super") {
-      swipeTimerRef.current = window.setTimeout(() => {
-        setSwipeDirection(null);
-        setSwipeHint(null);
-        setIsTransitioning(false);
-        actionGuardRef.current = false;
-      }, 260);
-      return;
+      const nextChats = ensureChatForProfile(loadChats(), profile.slug, profile.matchMessage);
+      saveChats(nextChats);
     }
 
     swipeTimerRef.current = window.setTimeout(() => {
-      goNext();
       setSwipeDirection(null);
       setSwipeHint(null);
+      setFeedbackModal({
+        type,
+        profile,
+        message: feedbackMessage,
+      });
       setIsTransitioning(false);
       actionGuardRef.current = false;
       swipeTimerRef.current = null;
-    }, 260);
+    }, MATCH_MODAL_DELAY_MS);
   }
 
-  function handleResetTimeline() {
-    if (swipeTimerRef.current !== null) {
-      window.clearTimeout(swipeTimerRef.current);
-      swipeTimerRef.current = null;
+  function handleConfirmFeedbackModal() {
+    if (!feedbackModal) {
+      return;
     }
 
-    setCurrentIndex(0);
-    setLikedSlugs([]);
-    setSwipeHistory([]);
-    setMatchedSlug(null);
-    setSwipeDirection(null);
-    setSwipeHint(null);
-    setIsTransitioning(false);
-    actionGuardRef.current = false;
-  }
-
-  function handleContinueAfterMatch() {
-    if (swipeTimerRef.current !== null) {
-      window.clearTimeout(swipeTimerRef.current);
-      swipeTimerRef.current = null;
+    if (feedbackModal.type === "left") {
+      setFeedbackModal(null);
+      goNext();
+      return;
     }
 
-    setMatchedSlug(null);
-    setSwipeDirection(null);
-    setSwipeHint(null);
-    setIsTransitioning(false);
-    actionGuardRef.current = false;
+    setNewMessageProfile(feedbackModal.profile);
+    setFeedbackModal(null);
     goNext();
   }
 
-  function handleActionTap(type: "left" | "right" | "super") {
+  function handleUndoLastAction() {
+    const lastAction = swipeHistory[swipeHistory.length - 1];
+    if (!lastAction || isTransitioning || actionGuardRef.current || feedbackModal) {
+      return;
+    }
+
+    if (swipeTimerRef.current !== null) {
+      window.clearTimeout(swipeTimerRef.current);
+      swipeTimerRef.current = null;
+    }
+    if (actionEffectTimerRef.current !== null) {
+      window.clearTimeout(actionEffectTimerRef.current);
+      actionEffectTimerRef.current = null;
+    }
+
+    setSwipeHistory((current) => current.slice(0, -1));
+    setCurrentIndex((current) => {
+      const currentProfile = orderedProfiles[current];
+      if (currentProfile?.slug === lastAction.slug) {
+        return current;
+      }
+      return Math.max(current - 1, 0);
+    });
+    if (lastAction.action === "right" || lastAction.action === "super") {
+      setLikedSlugs((current) => current.filter((slug) => slug !== lastAction.slug));
+      const chatsWithoutProfile = removeChatForProfile(loadChats(), lastAction.slug);
+      saveChats(chatsWithoutProfile);
+    }
+
+    if (newMessageProfile?.slug === lastAction.slug) {
+      setNewMessageProfile(null);
+    }
+    if (feedbackModal?.profile.slug === lastAction.slug) {
+      setFeedbackModal(null);
+    }
+
+    setActionEffect(null);
+    setSwipeDirection(null);
+    setSwipeHint(null);
+    setIsTransitioning(false);
+    actionGuardRef.current = false;
+  }
+
+  function handleIgnoreMessageNotice() {
+    if (swipeTimerRef.current !== null) {
+      window.clearTimeout(swipeTimerRef.current);
+      swipeTimerRef.current = null;
+    }
+    if (actionEffectTimerRef.current !== null) {
+      window.clearTimeout(actionEffectTimerRef.current);
+      actionEffectTimerRef.current = null;
+    }
+
+    setNewMessageProfile(null);
+    setFeedbackModal(null);
+    setActionEffect(null);
+    setSwipeDirection(null);
+    setSwipeHint(null);
+    setIsTransitioning(false);
+    actionGuardRef.current = false;
+  }
+
+  function handleOpenMessageNotice() {
+    if (!newMessageProfile) {
+      return;
+    }
+
+    const slug = newMessageProfile.slug;
+    handleIgnoreMessageNotice();
+    router.push(`/messages/${slug}`);
+  }
+
+  function handleActionTap(type: ActionType) {
     return () => {
-      if (isTransitioning || actionGuardRef.current) {
+      if (isFlowLocked || actionGuardRef.current) {
         return;
       }
 
@@ -193,6 +296,9 @@ export default function DiscoverPage() {
     return () => {
       if (swipeTimerRef.current !== null) {
         window.clearTimeout(swipeTimerRef.current);
+      }
+      if (actionEffectTimerRef.current !== null) {
+        window.clearTimeout(actionEffectTimerRef.current);
       }
     };
   }, []);
@@ -255,10 +361,10 @@ export default function DiscoverPage() {
           {swipeHistory.length > 0 && currentIndex > 0 ? (
             <button
               type="button"
-              onClick={handleResetTimeline}
+              onClick={handleUndoLastAction}
               className="rounded-full border border-cyan-200/25 bg-gradient-to-r from-cyan-500/55 via-sky-500/55 to-blue-500/55 px-6 py-4 text-sm font-black tracking-[0.2em] text-white shadow-lg shadow-cyan-500/30 backdrop-blur-lg"
             >
-              ↺ Voltar
+              ↺ Desfazer
             </button>
           ) : null}
           <Link
@@ -288,12 +394,20 @@ export default function DiscoverPage() {
           <h1 className="mt-2 text-2xl font-semibold">PsyMatch</h1>
         </div>
 
-        <Link
-          href="/matches"
-          className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 shadow-sm backdrop-blur"
-        >
-          Ver matches ({likedSlugs.length})
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/messages"
+            className="rounded-full border border-sky-300/25 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 shadow-sm backdrop-blur"
+          >
+            Mensagens
+          </Link>
+          <Link
+            href="/matches"
+            className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 shadow-sm backdrop-blur"
+          >
+            Ver matches ({likedSlugs.length})
+          </Link>
+        </div>
       </header>
 
       <p className="mb-4 text-xs font-medium text-white/70">
@@ -369,6 +483,179 @@ export default function DiscoverPage() {
         ) : null}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {feedbackModal ? (
+          <motion.div
+            key={`feedback-modal-${feedbackModal.profile.slug}-${feedbackModal.type}`}
+            className="fixed inset-0 z-[75] grid place-items-center bg-black/70 px-4 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className={`w-full max-w-sm rounded-[1.6rem] border p-5 shadow-2xl ${
+                feedbackModal.type === "left"
+                  ? "border-rose-300/35 bg-gradient-to-b from-[#2a171d] to-[#130b10]"
+                  : feedbackModal.type === "super"
+                    ? "border-sky-300/35 bg-gradient-to-b from-[#13232d] to-[#0b121a]"
+                    : "border-emerald-300/35 bg-gradient-to-b from-[#15271e] to-[#0b130f]"
+              }`}
+              initial={{ y: 26, scale: 0.96, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={{ y: 16, scale: 0.98, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 280, damping: 24 }}
+            >
+              <p className="text-xs uppercase tracking-[0.28em] text-white/60">
+                {feedbackModal.type === "left"
+                  ? "PASSEI"
+                  : feedbackModal.type === "super"
+                    ? "SUPERLIKE"
+                    : "LIKE"}
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">{feedbackModal.profile.name}</h2>
+              <p className="mt-4 text-sm leading-7 text-white/90">{feedbackModal.message}</p>
+              <button
+                type="button"
+                onClick={handleConfirmFeedbackModal}
+                className="mt-5 w-full rounded-full border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white shadow-lg"
+              >
+                {feedbackModal.type === "left" ? "Continuar explorando" : "Continuar"}
+              </button>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {newMessageProfile ? (
+          <motion.div
+            key={`message-notice-${newMessageProfile.slug}`}
+            className="fixed inset-x-0 bottom-24 z-[80] mx-auto w-full max-w-sm px-4"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 28 }}
+          >
+            <motion.div
+              drag="x"
+              dragElastic={0.12}
+              dragMomentum={false}
+              dragConstraints={{ left: -220, right: 220 }}
+              onDragEnd={(_, info) => {
+                if (Math.abs(info.offset.x) > 110) {
+                  handleIgnoreMessageNotice();
+                }
+              }}
+              onClick={handleOpenMessageNotice}
+              className="cursor-pointer rounded-2xl border border-sky-200/35 bg-gradient-to-r from-sky-500/25 via-cyan-500/20 to-blue-500/20 px-4 py-3 shadow-2xl shadow-sky-500/25 backdrop-blur"
+            >
+              <p className="text-[11px] uppercase tracking-[0.24em] text-sky-100/80">Nova mensagem</p>
+              <p className="mt-1 text-sm font-semibold text-white">
+                Voce tem uma nova mensagem de {newMessageProfile.name}. Clique para ver.
+              </p>
+              <p className="mt-1 text-xs text-white/70">
+                Arraste para o lado para ignorar e ver depois em Mensagens.
+              </p>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {actionEffect ? (
+          <motion.div
+            key={`${actionEffect.type}-${actionEffect.id}`}
+            className="pointer-events-none fixed inset-0 z-[60] grid place-items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className={`absolute inset-0 ${
+                actionEffect.type === "right"
+                  ? "bg-emerald-500/20"
+                  : actionEffect.type === "super"
+                    ? "bg-sky-500/20"
+                    : "bg-rose-500/20"
+              }`}
+              initial={{ opacity: 0 }}
+              animate={{
+                opacity:
+                  actionEffect.type === "super" ? [0, 0.75, 0.2, 0] : [0, 0.45, 0],
+              }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: actionEffect.type === "super" ? 0.7 : 0.45,
+                ease: "easeOut",
+              }}
+            />
+
+            <motion.div
+              className={`relative grid h-28 w-28 place-items-center rounded-full border ${
+                actionEffect.type === "right"
+                  ? "border-emerald-200/80 bg-emerald-400/22 text-emerald-100 shadow-emerald-500/35"
+                  : actionEffect.type === "super"
+                    ? "border-sky-200/80 bg-sky-400/22 text-sky-100 shadow-sky-500/35"
+                    : "border-rose-200/80 bg-rose-400/22 text-rose-100 shadow-rose-500/35"
+              } shadow-2xl backdrop-blur-sm`}
+              initial={{
+                opacity: 0,
+                scale: 0.6,
+                x: actionEffect.type === "right" ? 55 : actionEffect.type === "left" ? -55 : 0,
+                y: actionEffect.type === "super" ? 70 : 8,
+                rotate: actionEffect.type === "left" ? -12 : actionEffect.type === "right" ? 12 : 0,
+              }}
+              animate={{
+                opacity: [0, 1, 1, 0],
+                scale: actionEffect.type === "super" ? [0.45, 1.28, 1, 0.7] : [0.6, 1.1, 1, 0.9],
+                x: 0,
+                y: actionEffect.type === "super" ? [70, -12, -54, -120] : 0,
+                rotate: 0,
+              }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{
+                duration: actionEffect.type === "super" ? 0.68 : 0.52,
+                ease: actionEffect.type === "super" ? "anticipate" : "easeOut",
+              }}
+            >
+              <span className="text-3xl">
+                {actionEffect.type === "right" ? "♥" : actionEffect.type === "super" ? "★" : "✕"}
+              </span>
+            </motion.div>
+
+            {(actionEffect.type === "super" ? SUPERLIKE_PARTICLES : ACTION_PARTICLES).map(
+              (particle, index) => (
+              <motion.span
+                key={`${actionEffect.id}-${index}`}
+                className={`absolute text-2xl ${
+                  actionEffect.type === "right"
+                    ? "text-emerald-200/95"
+                    : actionEffect.type === "super"
+                      ? "text-sky-200/95"
+                      : "text-rose-200/95"
+                }`}
+                initial={{ opacity: 0, scale: 0.4, x: 0, y: 0 }}
+                animate={{
+                  opacity: [0, 1, 0],
+                  scale:
+                    actionEffect.type === "super" ? [0.3, 1.45, 0.55] : [0.4, 1.15, 0.7],
+                  x: particle.x,
+                  y: particle.y,
+                }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: actionEffect.type === "super" ? 0.7 : 0.5,
+                  delay: particle.delay,
+                  ease: "easeOut",
+                }}
+              >
+                {actionEffect.type === "right" ? "♥" : actionEffect.type === "super" ? "★" : "✕"}
+              </motion.span>
+            ))}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
           <ProfileCard
             key={profile.slug}
@@ -376,9 +663,9 @@ export default function DiscoverPage() {
             onPass={() => handleAction("left")}
             onLike={() => handleAction("right")}
             onSuperLike={() => handleAction("super")}
-            onUndo={swipeHistory.length > 0 || currentIndex > 0 ? handleResetTimeline : undefined}
+            onUndo={swipeHistory.length > 0 ? handleUndoLastAction : undefined}
             onSwipeHint={setSwipeHint}
-            isBusy={isTransitioning || isMatchPending}
+            isBusy={isFlowLocked}
             swipeDirection={swipeDirection}
             interactive
             photoSwipeEnabled
@@ -389,17 +676,17 @@ export default function DiscoverPage() {
         <div className="mx-auto flex max-w-sm items-center justify-between gap-6 px-4 pb-2 pt-1">
           <button
             type="button"
-            onClick={handleResetTimeline}
+            onClick={handleUndoLastAction}
             onTouchStart={(event) => {
               event.preventDefault();
-              handleResetTimeline();
+              handleUndoLastAction();
             }}
             onPointerDown={(event) => {
               event.currentTarget.focus();
             }}
-            disabled={swipeHistory.length === 0 && currentIndex === 0}
+            disabled={swipeHistory.length === 0}
             className="z-50 grid h-10 w-10 place-items-center shrink-0 rounded-full border border-amber-300/35 bg-amber-300/10 p-0 text-amber-200 shadow-lg shadow-amber-300/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:scale-100 disabled:opacity-40"
-            aria-label="Voltar"
+            aria-label="Desfazer ultimo swipe"
           >
             <svg
               viewBox="0 0 24 24"
@@ -432,7 +719,7 @@ export default function DiscoverPage() {
                 handleActionTap("left")();
               }}
               onClick={handleActionTap("left")}
-              disabled={isTransitioning || isMatchPending}
+              disabled={isFlowLocked}
               className="grid h-12 w-12 place-items-center rounded-full border border-rose-300/35 bg-rose-500/10 text-rose-200 shadow-lg shadow-rose-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
               aria-label="Passei"
             >
@@ -459,7 +746,7 @@ export default function DiscoverPage() {
                 handleActionTap("super")();
               }}
               onClick={handleActionTap("super")}
-              disabled={isTransitioning || isMatchPending}
+              disabled={isFlowLocked}
               className="grid h-12 w-12 place-items-center rounded-full border border-sky-300/35 bg-sky-500/10 text-sky-200 shadow-lg shadow-sky-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
               aria-label="Super gostar"
             >
@@ -485,7 +772,7 @@ export default function DiscoverPage() {
                 handleActionTap("right")();
               }}
               onClick={handleActionTap("right")}
-              disabled={isTransitioning || isMatchPending}
+              disabled={isFlowLocked}
               className="grid h-12 w-12 place-items-center rounded-full border border-emerald-300/35 bg-emerald-500/10 text-emerald-200 shadow-lg shadow-emerald-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
               aria-label="Gostei"
             >
@@ -508,11 +795,6 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <MatchModal
-        profile={matchedProfile}
-        userName={userName}
-        onClose={handleContinueAfterMatch}
-      />
     </main>
   );
 }

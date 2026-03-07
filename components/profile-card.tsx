@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import {
   animate,
   motion,
@@ -22,6 +23,7 @@ type ProfileCardProps = {
   swipeDirection: "left" | "right" | "super" | null;
   interactive?: boolean;
   photoSwipeEnabled?: boolean;
+  fullProfileView?: boolean;
 };
 
 const SWIPE_DISTANCE_PERCENT = 0.42;
@@ -40,6 +42,7 @@ export function ProfileCard({
   swipeDirection,
   interactive = true,
   photoSwipeEnabled = true,
+  fullProfileView = false,
 }: ProfileCardProps) {
   const [activePhoto, setActivePhoto] = useState(0);
   const [dragPhotoPreview, setDragPhotoPreview] = useState(0);
@@ -301,10 +304,12 @@ export function ProfileCard({
         }}
         style={{ x: photoDragX }}
       >
-        <img
+        <Image
           src={profile.photos[dragPhotoPreview]}
           alt={`Perfil de ${profile.name}`}
-          className="h-full w-full object-cover"
+          fill
+          sizes="(max-width: 420px) 100vw, 420px"
+          className="object-cover"
           loading="lazy"
         />
 
@@ -346,9 +351,9 @@ export function ProfileCard({
 
       <section
         className={`relative -mt-7 flex-1 rounded-t-[2rem] border-t border-fuchsia-400/20 bg-gradient-to-b from-[#1a1821] via-[#15131c] to-[#0d0b12] px-5 py-6 ${
-          interactive ? "" : "overflow-y-auto"
+          fullProfileView ? "" : interactive ? "" : "overflow-y-auto"
         }`}
-        style={interactive ? undefined : { maxHeight: "39vh" }}
+        style={fullProfileView || interactive ? undefined : { maxHeight: "39vh" }}
       >
         <div className="flex items-start justify-between gap-4">
         <div>

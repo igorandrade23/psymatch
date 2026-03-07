@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
@@ -49,7 +50,8 @@ export default function MatchesPage() {
           profile={selectedProfile}
           swipeDirection={null}
           interactive={false}
-          photoSwipeEnabled={false}
+          photoSwipeEnabled
+          fullProfileView
         />
       </main>
     );
@@ -65,19 +67,27 @@ export default function MatchesPage() {
           </h1>
         </div>
 
-        <Link
-          href="/discover"
-          className="rounded-full border border-white/20 bg-black/45 px-4 py-2 font-semibold text-white shadow-sm backdrop-blur"
-        >
-          Voltar
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/messages"
+            className="rounded-full border border-sky-300/25 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 shadow-sm backdrop-blur"
+          >
+            Mensagens
+          </Link>
+          <Link
+            href="/discover"
+            className="rounded-full border border-white/20 bg-black/45 px-4 py-2 font-semibold text-white shadow-sm backdrop-blur"
+          >
+            Voltar
+          </Link>
+        </div>
       </header>
 
       {matches.length === 0 ? (
         <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
           <h2 className="text-2xl font-semibold">Ainda sem matches</h2>
           <p className="mt-3 max-w-2xl leading-7 text-white/70">
-            Quando voce der like em algum perfil, ele aparece aqui com a mensagem desbloqueada.
+            Quando voce der like em algum perfil, ele aparece aqui e o chat abre na aba Mensagens.
           </p>
         </section>
       ) : (
@@ -92,9 +102,11 @@ export default function MatchesPage() {
                 onClick={() => setSelectedProfile(profile)}
                 className="relative h-24 w-24 overflow-hidden rounded-xl border border-white/15"
               >
-                <img
+                <Image
                   src={profile.photos[0]}
                   alt={`Miniatura de ${profile.name}`}
+                  width={96}
+                  height={96}
                   className="h-full w-full object-cover"
                 />
               </button>

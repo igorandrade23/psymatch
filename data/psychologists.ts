@@ -55,9 +55,9 @@ export const psychologists: Psychologist[] = [
     order: 2,
     name: "Burrhus Frederic Skinner",
     photos: [
-      "/placeholders/skinner/skinner-1.svg",
-      "/placeholders/skinner/skinner-2.svg",
-      "/placeholders/skinner/skinner-3.svg",
+      "/placeholders/skinner/1.jpeg",
+      "/placeholders/skinner/2.jpeg",
+      "/placeholders/skinner/3.jpeg",
     ],
     ageLabel: "44 anos",
     role: "Engenheiro de Pombos e Sommelier de Consequências",

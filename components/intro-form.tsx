@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { saveState } from "@/lib/storage";
+import { saveChats, saveState } from "@/lib/storage";
 
 export function IntroForm() {
   const [name, setName] = useState("");
@@ -21,6 +21,7 @@ export function IntroForm() {
       currentIndex: 0,
       likedSlugs: [],
     });
+    saveChats([]);
 
     router.push("/discover");
   }
