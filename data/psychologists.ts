@@ -24,9 +24,9 @@ export const psychologists: Psychologist[] = [
     order: 1,
     name: "John Broadus Watson",
     photos: [
-      "/placeholders/psych-1.svg",
-      "/placeholders/psych-3.svg",
-      "/placeholders/psych-2.svg",
+      "/placeholders/watson/watson-1.svg",
+      "/placeholders/watson/watson-2.svg",
+      "/placeholders/watson/watson-3.svg",
     ],
     ageLabel: "35 anos",
     role: "Psicologo e Fiscal de Atitudes",
@@ -55,9 +55,9 @@ export const psychologists: Psychologist[] = [
     order: 2,
     name: "Burrhus Frederic Skinner",
     photos: [
-      "/placeholders/psych-2.svg",
-      "/placeholders/psych-1.svg",
-      "/placeholders/psych-3.svg",
+      "/placeholders/skinner/skinner-1.svg",
+      "/placeholders/skinner/skinner-2.svg",
+      "/placeholders/skinner/skinner-3.svg",
     ],
     ageLabel: "44 anos",
     role: "Engenheiro de Pombos e Sommelier de Consequencias",
@@ -81,4 +81,3 @@ export const psychologists: Psychologist[] = [
     matchMessage: "Seu like funcionou como reforco positivo. A probabilidade de eu gostar de voce aumentou bastante.",
   },
 ];
-

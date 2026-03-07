@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7ead0"/>
+      <stop offset="100%" stop-color="#e7a93e"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <rect x="80" y="96" width="440" height="608" rx="30" fill="#fff" fill-opacity="0.17"/>
+  <text x="300" y="188" text-anchor="middle" font-family="Georgia,serif" font-size="46" fill="#5d3711" font-weight="700">JOHN B. WATSON</text>
+  <circle cx="300" cy="320" r="96" fill="#ffedd4"/>
+  <path d="M246 340c18-40 90-40 108 0" stroke="#6a3d16" stroke-width="8" fill="none"/>
+  <line x1="260" y1="292" x2="290" y2="292" stroke="#1f1206" stroke-width="6"/>
+  <line x1="310" y1="292" x2="340" y2="292" stroke="#1f1206" stroke-width="6"/>
+  <rect x="122" y="420" width="360" height="170" rx="20" fill="#2f2a22" fill-opacity="0.08"/>
+  <path d="M160 530h280" stroke="#6d5a3a" stroke-width="4"/>
+  <rect x="190" y="450" width="220" height="46" rx="12" fill="#fff3df"/>
+  <text x="300" y="482" text-anchor="middle" font-size="24" fill="#7a4813" font-family="Arial">S-R / Recompensa</text>
+  <circle cx="230" cy="560" r="12" fill="#8d4f19"/>
+  <circle cx="300" cy="560" r="12" fill="#8d4f19"/>
+  <circle cx="370" cy="560" r="12" fill="#8d4f19"/>
+  <path d="M222 600c26 18 130 18 156 0" stroke="#8d4f19" stroke-width="10" fill="none"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" width="600" height="800">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#fff6d8"/>
+      <stop offset="100%" stop-color="#f5c26a"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <rect x="44" y="62" width="512" height="676" rx="44" fill="#fff" fill-opacity="0.26"/>
+  <text x="300" y="122" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#744217" letter-spacing="0.2em">OBSERVACAO</text>
+  <g transform="translate(300 280)">
+    <ellipse cx="0" cy="0" rx="98" ry="122" fill="#fff2dc"/>
+    <path d="M-80 0c0-44 36-80 80-80s80 36 80 80" fill="none" stroke="#b06a1b" stroke-width="8"/>
+    <circle cx="-28" cy="-18" r="10" fill="#2a251f"/>
+    <circle cx="28" cy="-18" r="10" fill="#2a251f"/>
+    <path d="M-22 30 Q0 50 22 30" stroke="#583b15" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </g>
+  <rect x="138" y="430" width="324" height="70" rx="16" fill="#7a4f17" fill-opacity="0.85"/>
+  <text x="300" y="476" text-anchor="middle" font-family="Arial, sans-serif" font-size="21" fill="#f8e3c2" font-weight="700">Condicionamento</text>
+  <path d="M120 560c80 0 90 80 180 80s100-80 180-80" fill="none" stroke="#7f4c16" stroke-width="10" stroke-linecap="round"/>
+  <rect x="210" y="602" width="180" height="90" rx="22" fill="#ffd7a0"/>
+  <text x="300" y="654" text-anchor="middle" font-family="Montserrat, Arial" font-size="20" fill="#7d4216">Little Albert</text>
+</svg>
