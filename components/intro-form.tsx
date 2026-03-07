@@ -30,18 +30,15 @@ export function IntroForm() {
       onSubmit={handleSubmit}
       className="mt-10 w-full rounded-[1.75rem] border border-fuchsia-400/20 bg-black/45 p-6 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur"
     >
-      <p className="text-sm uppercase tracking-[0.35em] text-fuchsia-200">Seu nome</p>
-      <h2 className="mt-2 text-3xl font-semibold leading-tight text-white">
-        Comece a jornada
-      </h2>
-      <p className="mt-3 text-base leading-7 text-white/75">
-        Digite seu nome e descubra os perfis na ordem da linha do tempo.
-      </p>
-
+      <label htmlFor="userName" className="text-sm uppercase tracking-[0.28em] text-fuchsia-200">
+        Digite seu nome
+      </label>
       <input
+        id="userName"
         value={name}
         onChange={(event) => setName(event.target.value)}
         placeholder="Ex.: Lara"
+        aria-label="Seu nome"
         className="mt-6 w-full rounded-full border border-white/20 bg-black/35 px-5 py-4 text-lg text-white outline-none transition focus:border-fuchsia-300 placeholder:text-white/40"
       />
 
@@ -49,7 +46,7 @@ export function IntroForm() {
         type="submit"
         className="mt-5 w-full rounded-full bg-gradient-to-r from-fuchsia-500 via-rose-500 to-red-500 px-6 py-4 text-lg font-semibold text-white shadow-lg shadow-fuchsia-500/40 transition hover:from-fuchsia-400 hover:to-rose-400"
       >
-        Iniciar
+        Continuar
       </button>
     </form>
   );

@@ -12,18 +12,21 @@ import type { Psychologist } from "@/data/psychologists";
 
 type ProfileCardProps = {
   profile: Psychologist;
-  onPass: () => void;
-  onLike: () => void;
-  onSuperLike: () => void;
+  onPass?: () => void;
+  onLike?: () => void;
+  onSuperLike?: () => void;
   onUndo?: () => void;
+  onOpenProfile?: () => void;
   onSwipeHint?: (hint: "left" | "right" | "super" | null) => void;
   isBusy?: boolean;
   swipeDirection: "left" | "right" | "super" | null;
+  interactive?: boolean;
+  photoSwipeEnabled?: boolean;
 };
 
 const SWIPE_DISTANCE_PERCENT = 0.42;
-const SWIPE_DISTANCE_MIN = 140;
-const SWIPE_DISTANCE_MAX = 280;
+const SWIPE_DISTANCE_MIN = 92;
+const SWIPE_DISTANCE_MAX = 240;
 
 export function ProfileCard({
   profile,
@@ -31,9 +34,12 @@ export function ProfileCard({
   onLike,
   onSuperLike,
   onUndo,
+  onOpenProfile,
   onSwipeHint,
   isBusy = false,
   swipeDirection,
+  interactive = true,
+  photoSwipeEnabled = true,
 }: ProfileCardProps) {
   const [activePhoto, setActivePhoto] = useState(0);
   const [dragPhotoPreview, setDragPhotoPreview] = useState(0);
@@ -41,7 +47,6 @@ export function ProfileCard({
   const isFunnyMode = false;
 
   const dragX = useMotionValue(0);
-  const dragY = useMotionValue(0);
   const dragRotation = useTransform(dragX, [-420, 0, 420], [-16, 0, 16]);
   const photoDragX = useMotionValue(0);
 
@@ -80,9 +85,14 @@ export function ProfileCard({
   }, [isFunnyMode, profile.bio, profile.experimentBody, profile.experimentTitle, profile.labPuns, profile.lookingFor]);
 
   useEffect(() => {
+    if (!interactive) {
+      onSwipeHint?.(null);
+      return;
+    }
+
     const direction = dragHint ?? swipeDirection ?? null;
     onSwipeHint?.(direction);
-  }, [dragHint, swipeDirection, onSwipeHint]);
+  }, [dragHint, swipeDirection, onSwipeHint, interactive]);
 
   function swipeDistanceThreshold() {
     if (typeof window === "undefined") {
@@ -90,38 +100,18 @@ export function ProfileCard({
     }
 
     const width = Math.min(window.innerWidth, 420);
-    return Math.min(
-      Math.max(Math.round(width * SWIPE_DISTANCE_PERCENT), SWIPE_DISTANCE_MIN),
-      SWIPE_DISTANCE_MAX,
-    );
+    return Math.max(SWIPE_DISTANCE_MIN, Math.min(Math.round(width * 0.22), SWIPE_DISTANCE_MAX));
   }
 
   function handleDragEnd(
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) {
-    if (isBusy) {
+    if (isBusy || !interactive) {
       return;
     }
 
     setDragHint(null);
-
-    const superThreshold = 110;
-
-    if (info.offset.y < -superThreshold && info.offset.y < -Math.abs(info.offset.x) * 0.6) {
-      animate(dragX, 0, {
-        type: "spring",
-        stiffness: 340,
-        damping: 28,
-      });
-      animate(dragY, 0, {
-        type: "spring",
-        stiffness: 340,
-        damping: 28,
-      });
-      onSuperLike();
-      return;
-    }
 
     if (info.offset.x > swipeDistanceThreshold()) {
       animate(dragX, 0, {
@@ -129,12 +119,7 @@ export function ProfileCard({
         stiffness: 340,
         damping: 28,
       });
-      animate(dragY, 0, {
-        type: "spring",
-        stiffness: 340,
-        damping: 28,
-      });
-      onLike();
+      onLike?.();
       return;
     }
 
@@ -144,23 +129,12 @@ export function ProfileCard({
         stiffness: 340,
         damping: 28,
       });
-      animate(dragY, 0, {
-        type: "spring",
-        stiffness: 340,
-        damping: 28,
-      });
-      onPass();
+      onPass?.();
       return;
     }
 
     dragX.stop();
-    dragY.stop();
     animate(dragX, 0, {
-      type: "spring",
-      stiffness: 320,
-      damping: 26,
-    });
-    animate(dragY, 0, {
       type: "spring",
       stiffness: 320,
       damping: 26,
@@ -171,19 +145,12 @@ export function ProfileCard({
     _event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) {
-    if (isBusy) {
+    if (isBusy || !interactive) {
       return;
     }
 
     const { x } = info.offset;
-    const { y } = info.offset;
-    const superThreshold = 72;
-    const threshold = Math.min(Math.max(swipeDistanceThreshold() * 0.7, 70), 120);
-
-    if (y < -superThreshold && y < -Math.abs(x) * 0.6) {
-      setDragHint("super");
-      return;
-    }
+    const threshold = swipeDistanceThreshold();
 
     if (x > threshold) {
       setDragHint("right");
@@ -209,6 +176,7 @@ export function ProfileCard({
   }
 
   const photoCount = profile.photos.length;
+  const canSwipePhotos = photoSwipeEnabled && photoCount > 1;
 
   function previewFromOffset(offsetX: number) {
     if (photoCount <= 1) {
@@ -230,7 +198,7 @@ export function ProfileCard({
     _event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) {
-    if (isBusy) {
+    if (isBusy || !canSwipePhotos) {
       return;
     }
 
@@ -241,7 +209,7 @@ export function ProfileCard({
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) {
-    if (isBusy) {
+    if (isBusy || !canSwipePhotos) {
       return;
     }
 
@@ -290,13 +258,13 @@ export function ProfileCard({
   return (
     <motion.article
       key={profile.slug}
-      drag
+      drag={interactive ? "x" : false}
       dragElastic={0.08}
       dragMomentum={false}
-      dragConstraints={{ left: -340, right: 340, top: -340, bottom: 0 }}
-      style={{ x: dragX, y: dragY, rotate: dragRotation }}
-      onDragEnd={handleDragEnd}
-      onDrag={handleDrag}
+      dragConstraints={{ left: -340, right: 340 }}
+      style={{ x: dragX, rotate: dragRotation }}
+      onDragEnd={interactive ? handleDragEnd : undefined}
+      onDrag={interactive ? handleDrag : undefined}
       onDragStart={() => {
         setDragHint(null);
       }}
@@ -305,21 +273,32 @@ export function ProfileCard({
       exit={swipeExit}
       transition={{ type: "spring", stiffness: 320, damping: 26 }}
       className="relative w-full overflow-hidden rounded-[2rem] border border-fuchsia-500/20 bg-gradient-to-b from-[#17151c] via-[#121018] to-[#0b0a0f] pb-6 shadow-[0_26px_65px_rgba(0,0,0,0.55)]"
-      whileTap={{ cursor: "grabbing" }}
+      whileTap={interactive ? { cursor: "grabbing" } : undefined}
+      onTap={() => {
+        onOpenProfile?.();
+      }}
     >
       <motion.div
         className="relative isolate h-[56vh] min-h-[55vh] overflow-hidden"
-        drag="x"
+        drag={canSwipePhotos ? "x" : false}
         dragElastic={0.08}
         dragConstraints={{ left: -120, right: 120 }}
         dragMomentum={false}
         onDragStart={(event) => {
+          if (!canSwipePhotos) {
+            return;
+          }
+
           event.stopPropagation();
           setDragHint(null);
           setDragPhotoPreview(activePhoto);
         }}
         onDrag={handlePhotoDrag}
         onDragEnd={handlePhotoDragEnd}
+        onTap={(event) => {
+          event.stopPropagation();
+          onOpenProfile?.();
+        }}
         style={{ x: photoDragX }}
       >
         <img
@@ -365,7 +344,12 @@ export function ProfileCard({
 
       </motion.div>
 
-      <section className="relative -mt-7 rounded-t-[2rem] border-t border-fuchsia-400/20 bg-gradient-to-b from-[#1a1821] via-[#15131c] to-[#0d0b12] px-5 py-6">
+      <section
+        className={`relative -mt-7 flex-1 rounded-t-[2rem] border-t border-fuchsia-400/20 bg-gradient-to-b from-[#1a1821] via-[#15131c] to-[#0d0b12] px-5 py-6 ${
+          interactive ? "" : "overflow-y-auto"
+        }`}
+        style={interactive ? undefined : { maxHeight: "39vh" }}
+      >
         <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-bold leading-tight text-white">
@@ -373,9 +357,6 @@ export function ProfileCard({
           </h1>
           <p className="mt-1 text-2xl font-medium text-white/80">
             {profile.ageLabel}
-          </p>
-          <p className="mt-3 text-sm font-medium text-cyan-300">
-            Verificado historicamente
           </p>
         </div>
         </div>

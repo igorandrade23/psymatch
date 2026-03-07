@@ -24,31 +24,31 @@ export const psychologists: Psychologist[] = [
     order: 1,
     name: "John Broadus Watson",
     photos: [
-      "/placeholders/watson/watson-1.svg",
-      "/placeholders/watson/watson-2.svg",
-      "/placeholders/watson/watson-3.svg",
+      "/placeholders/watson/1.jpeg",
+      "/placeholders/watson/2.jpeg",
+      "/placeholders/watson/3.jpeg",
     ],
     ageLabel: "35 anos",
-    role: "Psicologo e Fiscal de Atitudes",
-    distanceLabel: "A 2 km de voce (to de olho no seu comportamento)",
-    sign: "Capricornio",
-    school: "Behaviorismo Metodologico",
-    bio: "Pai do behaviorismo metodologico. Defende que a psicologia deve estudar apenas o que pode ser observado, medido e testado, rejeitando introspeccao, alma e mente como base cientifica.",
+    role: "Psicólogo e Fiscal de Atitudes",
+    distanceLabel: "A 2 km de você (tô de olho no seu comportamento)",
+    sign: "Capricórnio",
+    school: "Behaviorismo Metodológico",
+    bio: "Cansado de matches que vivem no mundo da lua? Eu sou o pai do Behaviorismo Metodológico e aqui o papo é objetivo da Ciência Natural: se eu não consigo ver, medir e provar, pra mim nem existe! Rejeito a introspecção e qualquer papo sobre “alma” ou “mente” se você quer que eu adivinhe o que você tá pensando, deu swipe errado. Nasci em Travelers Rest, Carolina do Sul (EUA), mas me mudei de vez pro Brasil porque o ambiente aqui é perfeito pra prever e controlar... digo, pra gente se ajustar um ao outro!",
     likes: [
-      "Estimulo e Resposta (S-R)",
-      "Separar habito de hereditariedade",
-      "Historias com ratos brancos"
+      "Sou do tipo prático: meu negócio é Estímulo e Resposta (S-R).",
+      "Gosto de ratos brancos (tenho ótimas histórias, juro!).",
+      "Adoro separar o que é hábito do que é hereditariedade."
     ],
-    dislikes: ["Barulhos metalicos altos perto do pet"],
-    experimentTitle: "Pequeno Albert",
-    experimentBody: "Watson associou um rato branco a um som metalico assustador para mostrar como uma resposta emocional podia ser condicionada. O estudo ficou famoso e hoje tambem e lembrado por seus problemas eticos.",
-    lookingFor: "Alguem observavel, que demonstre afeto por atos consensuais, publicos e mensuraveis.",
+    dislikes: ["De barulhos metálicos altos enquanto você segura meu pet."],
+    experimentTitle: "Experimento bombástico",
+    experimentBody: "Fui o autor do polêmico estudo com o Pequeno Albert. Mostrei ao mundo que as emoções humanas são apenas respostas corporais a estímulos específicos. Basicamente, ensinei um bebê de 11 meses a ter pavor de um rato branco (que ele amava!) apenas fazendo um barulhão de metal assustador toda vez que o bicho aparecia. Se eu condicionei um trauma, imagina o match que eu posso condicionar em você!",
+    lookingFor: "Alguém observável! Se você não consegue provar que me ama com atos públicos e observáveis consensuais, a gente não tem um match científico.",
     labPuns: [
-      "Se eu nao consigo observar seu interesse, ainda nao posso chamar isso de ciencia.",
-      "Voce me deixou com medo de ghosting em nivel Pequeno Albert.",
-      "Nosso match nao e mental, e puro comportamento observavel."
+      "Gata, me dá 12 bebês e eu te garanto: transformo um deles no seu pretendente perfeito e o resto em advogados para o nosso divórcio!",
+      "Não sou o Pequeno Albert, mas você me deixou com um medo terrível... de você me dar ghosting!",
+      "Nosso amor não é “mental”, é pura organização motora e fala subvocal!"
     ],
-    matchMessage: "Voce provou seu interesse com comportamento observavel. Isso, sim, e um match cientifico.",
+    matchMessage: "Você provou seu interesse com comportamento observável. Isso, sim, é um match científico.",
   },
   {
     slug: "burrhus-frederic-skinner",
@@ -60,23 +60,26 @@ export const psychologists: Psychologist[] = [
       "/placeholders/skinner/skinner-3.svg",
     ],
     ageLabel: "44 anos",
-    role: "Engenheiro de Pombos e Sommelier de Consequencias",
-    distanceLabel: "A 10 km de voce (num esquema de razao variavel)",
+    role: "Engenheiro de Pombos e Sommelier de Consequências",
+    distanceLabel: "A 10 km de você (num esquema de razão variável)",
     sign: "Peixes",
     school: "Behaviorismo Radical",
-    bio: "Skinner levou o behaviorismo ate a raiz do comportamento. Para ele, sentimentos e pensamentos existem, mas tambem sao comportamentos, ainda que encobertos. O foco continua sendo a relacao entre acao, ambiente e consequencias.",
+    bio: "Oi, pode me chamar de Fred! Sou radical, mas não é porque eu ando de skate, é porque eu vou até a raiz do comportamento! Diferente de certos ex-amigos meus (alô, Watson!), eu não ignoro seus sentimentos; eu só acho que eles são comportamentos encobertos, ou seja, acontecem “sob a pele”. Nasci em Susquehanna Depot, Pensilvânia, (EUA), mas estou passando umas férias no Brasil operando no ambiente local pra ver quais reforços eu encontro por aqui. Vem ser minha gata dentro da minha caixa!",
     likes: [
-      "Condicionamento Operante",
-      "Maquinas de ensinar e automacao",
-      "Pombos persistentes e ratos que usam alavanca"
+      "Sou fã de Condicionamento Operante: você faz a graça e eu te dou o brinde.",
+      "Amo construir coisas: de berços automáticos a máquinas de ensinar (já adianto que meu apê é todo automatizado).",
+      "Gosto de pombos persistentes e ratos que sabem usar uma alavanca."
     ],
     experimentTitle: "Caixa de Skinner",
-    experimentBody: "Skinner mostrou que comportamentos aumentam ou diminuem de acordo com suas consequencias. Ao apertar uma alavanca e receber comida, o rato aprende pela relacao entre resposta e reforco positivo.",
-    lookingFor: "Uma parceria em que o reforcador aparece na hora certa e o interesse nunca entra em extincao.",
+    dislikes: [
+      "Falta de consistência no ambiente e recompensas completamente aleatórias sem propósito.",
+    ],
+    experimentBody: "Sou o pai da famosa Caixa de Skinner. Nela, coloquei ratinhos para aprenderem que suas ações geram resultados: o rato aperta uma alavanca e pimba! Recebe uma pelota de comida. Isso é o que chamo de reforço positivo. Também provei que pombos podem ser persistentes se a recompensa for imprevisível, bicando até 150.000 vezes sem ganhar nada!",
+    lookingFor: "Uma parceria em que a gente opere junto no ambiente. Procuro um relacionamento em esquema de razão variável: aquele que me mantém viciado porque o beijo (reforçador) vem na hora que eu menos espero!",
     labPuns: [
-      "Seu like acabou de funcionar como reforco positivo.",
-      "Eu passaria o dia na sua caixa, desde que tenha comida e previsao experimental.",
-      "Quando voce aparece, meu interesse por outras opcoes entra em extincao."
+      "Você não é a minha caixa, mas eu passaria o dia todo ali dentro com você recebendo reforço positivo!",
+      "Quer entrar na minha caixa? O isolamento acústico é ótimo e a comida sai na hora certa!",
+      "Gata, você não é punição negativa, mas o meu interesse por outras entra em extinção quando você chega!"
     ],
     matchMessage: "Seu like funcionou como reforco positivo. A probabilidade de eu gostar de voce aumentou bastante.",
   },

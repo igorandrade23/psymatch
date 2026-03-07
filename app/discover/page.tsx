@@ -297,14 +297,14 @@ export default function DiscoverPage() {
       </header>
 
       <p className="mb-4 text-xs font-medium text-white/70">
-        Arraste o card para a direita para gostar, para cima para super gostar e para a esquerda para pular.
+        Arraste no card para a direita/esquerda para decidir. Na foto, arraste para trocar.
       </p>
 
       <AnimatePresence>
         {overlaySwipe ? (
           <motion.div
             key={`${overlaySwipe.label}-${currentIndex}`}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -380,6 +380,8 @@ export default function DiscoverPage() {
             onSwipeHint={setSwipeHint}
             isBusy={isTransitioning || isMatchPending}
             swipeDirection={swipeDirection}
+            interactive
+            photoSwipeEnabled
           />
       </AnimatePresence>
 

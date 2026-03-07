@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
+import type { Psychologist } from "@/data/psychologists";
 import { loadState } from "@/lib/storage";
 
 export default function MatchesPage() {
   const [userName, setUserName] = useState("");
   const [likedSlugs, setLikedSlugs] = useState<string[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<Psychologist | null>(null);
 
   useEffect(() => {
     const state = loadState();
@@ -23,6 +26,34 @@ export default function MatchesPage() {
     const ordered = [...psychologists].sort((a, b) => a.order - b.order);
     return ordered.filter((profile) => likedSlugs.includes(profile.slug));
   }, [likedSlugs]);
+
+  if (selectedProfile) {
+    return (
+      <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-6 text-white">
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm uppercase tracking-[0.35em] text-white/65">Revisar match</p>
+            <h1 className="mt-2 text-2xl font-semibold">Perfil completo</h1>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setSelectedProfile(null)}
+            className="rounded-full border border-fuchsia-300/25 bg-fuchsia-400/15 px-4 py-2 text-sm font-semibold text-fuchsia-100"
+          >
+            Voltar
+          </button>
+        </header>
+
+        <ProfileCard
+          profile={selectedProfile}
+          swipeDirection={null}
+          interactive={false}
+          photoSwipeEnabled={false}
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-8 text-white">
@@ -54,17 +85,34 @@ export default function MatchesPage() {
           {matches.map((profile) => (
             <article
               key={profile.slug}
-              className="rounded-[2rem] border border-white/12 bg-gradient-to-b from-[#1a1820] via-[#16141d] to-[#121018] p-7 shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
+              className="grid w-full grid-cols-[6.5rem_1fr] items-center gap-4 rounded-[1.3rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-3 shadow-[0_14px_30px_rgba(0,0,0,0.35)]"
             >
-              <p className="text-xs uppercase tracking-[0.3em] text-fuchsia-200">
-                Match #{profile.order}
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold text-white">{profile.name}</h2>
-              <p className="mt-1 text-white/75">{profile.school}</p>
-              <p className="mt-4 leading-7 text-white/90">{profile.matchMessage}</p>
-              <p className="mt-4 rounded-[1.25rem] border border-white/10 bg-black/35 px-4 py-3 text-sm leading-6 text-white/75">
-                Destaque historico: {profile.experimentTitle}
-              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedProfile(profile)}
+                className="relative h-24 w-24 overflow-hidden rounded-xl border border-white/15"
+              >
+                <img
+                  src={profile.photos[0]}
+                  alt={`Miniatura de ${profile.name}`}
+                  className="h-full w-full object-cover"
+                />
+              </button>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedProfile(profile)}
+                  className="text-left text-lg font-semibold leading-tight text-white transition hover:text-fuchsia-100"
+                >
+                  {profile.name}
+                </button>
+                <p className="mt-1 text-sm text-white/80">{profile.ageLabel}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.2em] text-fuchsia-200/90">
+                  {profile.school}
+                </p>
+                <p className="mt-2 text-sm text-white/70">{profile.distanceLabel}</p>
+              </div>
             </article>
           ))}
         </section>
