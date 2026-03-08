@@ -192,7 +192,9 @@ export default function DiscoverPage() {
     if (isFlowLocked || !currentItem || actionGuardRef.current) {
       return;
     }
-    const normalizedAction = currentItem.type === "era" ? "right" : type;
+    const normalizedAction = currentItem.type === "era"
+      ? (type === "left" ? "left" : "right")
+      : type;
     const currentProfile = currentItem.type === "profile" ? profile : null;
 
     actionGuardRef.current = true;

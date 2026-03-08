@@ -14,7 +14,7 @@ import type { SchoolEra } from "@/data/psychologists";
 type EraCardProps = {
   era: SchoolEra;
   onContinue?: () => void;
-  onSwipeHint?: (hint: "right" | null) => void;
+  onSwipeHint?: (hint: "left" | "right" | null) => void;
   isBusy?: boolean;
   swipeDirection: "left" | "right" | "super" | null;
 };
@@ -29,7 +29,7 @@ export function EraCard({
   isBusy = false,
   swipeDirection,
 }: EraCardProps) {
-  const [dragHint, setDragHint] = useState<"right" | null>(null);
+  const [dragHint, setDragHint] = useState<"left" | "right" | null>(null);
   const dragX = useMotionValue(0);
   const dragRotation = useTransform(dragX, [-420, 0, 420], [-12, 0, 12]);
 
@@ -59,7 +59,7 @@ export function EraCard({
 
   useEffect(() => {
     const direction =
-      dragHint ?? (swipeDirection === "right" ? swipeDirection : null);
+      dragHint ?? (swipeDirection === "left" || swipeDirection === "right" ? swipeDirection : null);
     onSwipeHint?.(direction);
   }, [dragHint, onSwipeHint, swipeDirection]);
 
@@ -85,6 +85,10 @@ export function EraCard({
       setDragHint("right");
       return;
     }
+    if (info.offset.x < -threshold) {
+      setDragHint("left");
+      return;
+    }
     setDragHint(null);
   }
 
@@ -104,6 +108,12 @@ export function EraCard({
       return;
     }
 
+    if (info.offset.x < -swipeDistanceThreshold()) {
+      animate(dragX, 0, { type: "spring", stiffness: 340, damping: 28 });
+      onContinue?.();
+      return;
+    }
+
     dragX.stop();
     animate(dragX, 0, { type: "spring", stiffness: 320, damping: 26 });
   }
@@ -111,6 +121,9 @@ export function EraCard({
   const swipeExit = useMemo(() => {
     if (swipeDirection === "right") {
       return { x: 1400, y: -180, rotate: 12, opacity: 0 };
+    }
+    if (swipeDirection === "left") {
+      return { x: -1400, y: 180, rotate: -12, opacity: 0 };
     }
     return { x: 0, y: 0, rotate: 0, opacity: 1 };
   }, [swipeDirection]);
@@ -180,17 +193,24 @@ export function EraCard({
           <p className="mt-3 leading-7 text-white/88">{era.vibe}</p>
         </div>
 
-        <div className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-3">
+        <button
+          type="button"
+          onClick={onContinue}
+          disabled={isBusy}
+          className="flex w-full items-center justify-between gap-3 rounded-[1.4rem] border border-white/10 bg-white/[0.03] px-4 py-3 text-left transition hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-60"
+        >
           <div>
             <p className="text-[11px] uppercase tracking-[0.28em] text-white/45">
               Próximo passo
             </p>
-            <p className={`mt-2 text-sm font-semibold ${accentStyles.cta}`}>{era.cta}</p>
+            <p className={`mt-2 text-sm font-semibold ${accentStyles.cta}`}>
+              {era.cta}
+            </p>
           </div>
           <span className="text-2xl text-white/50" aria-hidden>
             →
           </span>
-        </div>
+        </button>
       </section>
     </motion.article>
   );

@@ -57,7 +57,7 @@ export const schoolEras: SchoolEra[] = [
       "Wundt abriu o laboratório experimental em Leipzig e colocou a psicologia em clima de ciência. Titchener levou a missão adiante: decompor a consciência em sensações, imagens e sentimentos.",
     vibe:
       "Se você disser que curtiu o encontro, essa turma provavelmente vai pedir um relatório completo com intensidade, duração, textura emocional e talvez aroma.",
-    cta: "Deslize para conhecer os estruturalistas",
+    cta: "Clique aqui para conhecer os estruturalistas",
     image: "/placeholders/eras/estruturalismo-v2.svg",
     accent: "amber",
   },
@@ -72,7 +72,7 @@ export const schoolEras: SchoolEra[] = [
       "Watson quis banir a introspecção da festa e defender uma psicologia objetiva. Skinner transformou o comportamento em sistema de reforços, consequências e hábitos moldados pelo ambiente.",
     vibe:
       "Se você falar em química, eles talvez aceitem. Mas antes vão querer evidências replicáveis do seu interesse.",
-    cta: "Deslize para entrar no laboratório comportamental",
+    cta: "Clique aqui para conhecer os behavioristas",
     image: "/placeholders/eras/behaviorismo-v2.svg",
     accent: "sky",
   },
