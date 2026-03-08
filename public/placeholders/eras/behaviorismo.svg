@@ -1,0 +1,51 @@
+<svg width="1200" height="1600" viewBox="0 0 1200 1600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1600" fill="#091018"/>
+  <rect width="1200" height="1600" fill="url(#bg)"/>
+  <circle cx="938" cy="286" r="250" fill="#5FC5FF" fill-opacity="0.18"/>
+  <circle cx="272" cy="1240" r="300" fill="#8AE2FF" fill-opacity="0.12"/>
+  <rect x="122" y="138" width="956" height="1324" rx="52" fill="#0B151E" fill-opacity="0.68" stroke="#84D8FF" stroke-opacity="0.24" stroke-width="2"/>
+  <rect x="182" y="214" width="292" height="42" rx="21" fill="#57C8FF" fill-opacity="0.14" stroke="#9CE2FF" stroke-opacity="0.35"/>
+  <text x="218" y="242" fill="#BDEBFF" font-family="Georgia, serif" font-size="18" letter-spacing="5">CAPÍTULO 2</text>
+  <text x="182" y="360" fill="#F2FBFF" font-family="Georgia, serif" font-size="96" font-weight="700">Behaviorismo</text>
+  <text x="182" y="430" fill="#C7E8F7" font-family="Georgia, serif" font-size="28" letter-spacing="3">COMEÇO DO SÉCULO XX</text>
+  <text x="182" y="540" fill="#E8F8FF" font-family="Georgia, serif" font-size="48" font-weight="700">Se não der para observar,</text>
+  <text x="182" y="600" fill="#E8F8FF" font-family="Georgia, serif" font-size="48" font-weight="700">o laboratório desconfia.</text>
+  <rect x="182" y="692" width="836" height="2" fill="#9CE2FF" fill-opacity="0.24"/>
+  <text x="182" y="798" fill="#E5F7FF" font-family="Georgia, serif" font-size="34">Estímulos. Respostas. Reforços.</text>
+  <text x="182" y="852" fill="#E5F7FF" font-family="Georgia, serif" font-size="34">Menos adivinhação mental,</text>
+  <text x="182" y="906" fill="#E5F7FF" font-family="Georgia, serif" font-size="34">mais comportamento na bancada.</text>
+  <g opacity="0.95">
+    <rect x="782" y="942" width="228" height="182" rx="26" stroke="#9CE2FF" stroke-opacity="0.42" stroke-width="12"/>
+    <rect x="842" y="998" width="108" height="64" rx="12" stroke="#9CE2FF" stroke-opacity="0.42" stroke-width="10"/>
+    <path d="M782 1176H1010" stroke="#9CE2FF" stroke-opacity="0.42" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="850" cy="1080" r="6" fill="#BDEBFF"/>
+    <circle cx="942" cy="1080" r="6" fill="#BDEBFF"/>
+  </g>
+  <g transform="translate(732 1080)">
+    <ellipse cx="86" cy="64" rx="74" ry="46" fill="#D9F5FF" fill-opacity="0.92"/>
+    <ellipse cx="146" cy="54" rx="34" ry="30" fill="#D9F5FF" fill-opacity="0.92"/>
+    <circle cx="155" cy="48" r="4.5" fill="#163848"/>
+    <path d="M175 48C187 40 196 30 202 20" stroke="#D9F5FF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M174 60C188 62 200 70 208 82" stroke="#D9F5FF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M40 92C18 104 6 118 2 132" stroke="#D9F5FF" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="64" cy="68" r="4" fill="#163848"/>
+    <circle cx="92" cy="68" r="4" fill="#163848"/>
+  </g>
+  <g transform="translate(834 1220)">
+    <circle cx="86" cy="68" r="50" fill="#FFE8DC" fill-opacity="0.95"/>
+    <path d="M46 104C54 72 78 54 108 54C138 54 162 72 170 104" stroke="#FFE8DC" stroke-width="22" stroke-linecap="round"/>
+    <circle cx="70" cy="66" r="4" fill="#7A4E42"/>
+    <circle cx="102" cy="66" r="4" fill="#7A4E42"/>
+    <path d="M78 86C86 92 94 94 102 86" stroke="#7A4E42" stroke-width="5" stroke-linecap="round"/>
+    <path d="M18 112C30 88 48 76 72 72" stroke="#FFE8DC" stroke-width="16" stroke-linecap="round"/>
+    <path d="M154 72C178 76 196 88 208 112" stroke="#FFE8DC" stroke-width="16" stroke-linecap="round"/>
+  </g>
+  <text x="182" y="1286" fill="#C7E8F7" font-family="Georgia, serif" font-size="24" letter-spacing="4">RATINHOS, BEBÊS E CAIXAS DEMAIS</text>
+  <defs>
+    <linearGradient id="bg" x1="118" y1="118" x2="1080" y2="1498" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123347"/>
+      <stop offset="0.46" stop-color="#11202C"/>
+      <stop offset="1" stop-color="#0A1017"/>
+    </linearGradient>
+  </defs>
+</svg>

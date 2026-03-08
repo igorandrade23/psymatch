@@ -1,6 +1,7 @@
 export type Psychologist = {
   slug: string;
   order: number;
+  schoolSlug: string;
   name: string;
   ageLabel: string;
   role: string;
@@ -18,10 +19,70 @@ export type Psychologist = {
   matchMessage: string;
 };
 
+export type SchoolEra = {
+  slug: string;
+  order: number;
+  chapterLabel: string;
+  name: string;
+  periodLabel: string;
+  tagline: string;
+  summary: string;
+  vibe: string;
+  cta: string;
+  image: string;
+  accent: "amber" | "sky";
+};
+
+export type DiscoverItem =
+  | {
+      type: "era";
+      order: number;
+      eraSlug: string;
+    }
+  | {
+      type: "profile";
+      order: number;
+      profileSlug: string;
+    };
+
+export const schoolEras: SchoolEra[] = [
+  {
+    slug: "estruturalismo",
+    order: 1,
+    chapterLabel: "Capítulo 1",
+    name: "Estruturalismo",
+    periodLabel: "A partir de 1879",
+    tagline: "A mente virou objeto de laboratório.",
+    summary:
+      "Wundt abriu o laboratório experimental em Leipzig e colocou a psicologia em clima de ciência. Titchener levou a missão adiante: decompor a consciência em sensações, imagens e sentimentos.",
+    vibe:
+      "Se você disser que curtiu o encontro, essa turma provavelmente vai pedir um relatório completo com intensidade, duração, textura emocional e talvez aroma.",
+    cta: "Deslize para conhecer os estruturalistas",
+    image: "/placeholders/eras/estruturalismo-v2.svg",
+    accent: "amber",
+  },
+  {
+    slug: "behaviorismo",
+    order: 4,
+    chapterLabel: "Capítulo 2",
+    name: "Behaviorismo",
+    periodLabel: "A partir de 1913",
+    tagline: "Menos mistério mental, mais comportamento observável.",
+    summary:
+      "Watson quis banir a introspecção da festa e defender uma psicologia objetiva. Skinner transformou o comportamento em sistema de reforços, consequências e hábitos moldados pelo ambiente.",
+    vibe:
+      "Se você falar em química, eles talvez aceitem. Mas antes vão querer evidências replicáveis do seu interesse.",
+    cta: "Deslize para entrar no laboratório comportamental",
+    image: "/placeholders/eras/behaviorismo-v2.svg",
+    accent: "sky",
+  },
+];
+
 export const psychologists: Psychologist[] = [
   {
     slug: "wilhelm-wundt",
     order: 1,
+    schoolSlug: "estruturalismo",
     name: "Wilhelm Wundt",
     photos: [
       "/placeholders/wundt/1.jpeg",
@@ -58,6 +119,7 @@ export const psychologists: Psychologist[] = [
   {
     slug: "edward-bradford-titchener",
     order: 2,
+    schoolSlug: "estruturalismo",
     name: "Edward Bradford Titchener",
     photos: [
       "/placeholders/titchener/1.jpeg",
@@ -93,6 +155,7 @@ export const psychologists: Psychologist[] = [
   {
     slug: "john-broadus-watson",
     order: 3,
+    schoolSlug: "behaviorismo",
     name: "John Broadus Watson",
     photos: [
       "/placeholders/watson/1.jpeg",
@@ -125,6 +188,7 @@ export const psychologists: Psychologist[] = [
   {
     slug: "burrhus-frederic-skinner",
     order: 4,
+    schoolSlug: "behaviorismo",
     name: "Burrhus Frederic Skinner",
     photos: [
       "/placeholders/skinner/1.jpeg",
@@ -156,4 +220,13 @@ export const psychologists: Psychologist[] = [
     ],
     matchMessage: "Seu like funcionou como reforço positivo. A probabilidade de eu gostar de você aumentou bastante.",
   },
+];
+
+export const discoverItems: DiscoverItem[] = [
+  { type: "era", eraSlug: "estruturalismo", order: 1 },
+  { type: "profile", profileSlug: "wilhelm-wundt", order: 2 },
+  { type: "profile", profileSlug: "edward-bradford-titchener", order: 3 },
+  { type: "era", eraSlug: "behaviorismo", order: 4 },
+  { type: "profile", profileSlug: "john-broadus-watson", order: 5 },
+  { type: "profile", profileSlug: "burrhus-frederic-skinner", order: 6 },
 ];

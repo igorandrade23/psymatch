@@ -4,10 +4,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { EraCard } from "@/components/era-card";
 import { MatchModal } from "@/components/match-modal";
 import { MessageNotice } from "@/components/message-notice";
 import { ProfileCard } from "@/components/profile-card";
-import { psychologists } from "@/data/psychologists";
+import {
+  discoverItems,
+  psychologists,
+  schoolEras,
+  type Psychologist,
+} from "@/data/psychologists";
 import { ensureChatForProfile, removeChatForProfile } from "@/lib/chats";
 import {
   clearPendingMessageNotice,
@@ -41,33 +47,40 @@ const SUPERLIKE_PARTICLES = [
 ];
 const ACTION_EFFECT_DURATION_MS = 520;
 const MATCH_MODAL_DELAY_MS = 560;
+type ActionType = "left" | "right" | "super";
+type SwipeHistoryEntry = {
+  index: number;
+  action: ActionType;
+  profileSlug?: string;
+};
 
 export default function DiscoverPage() {
-  type ActionType = "left" | "right" | "super";
-  const orderedProfiles = useMemo(
-    () => [...psychologists].sort((a, b) => a.order - b.order),
+  const orderedDiscoverItems = useMemo(
+    () => [...discoverItems].sort((a, b) => a.order - b.order),
+    [],
+  );
+  const profilesBySlug = useMemo(
+    () => new Map(psychologists.map((profile) => [profile.slug, profile])),
+    [],
+  );
+  const erasBySlug = useMemo(
+    () => new Map(schoolEras.map((era) => [era.slug, era])),
     [],
   );
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedSlugs, setLikedSlugs] = useState<string[]>([]);
-  const [newMessageProfile, setNewMessageProfile] = useState<(typeof psychologists)[number] | null>(
-    null,
-  );
+  const [newMessageProfile, setNewMessageProfile] = useState<Psychologist | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [swipeDirection, setSwipeDirection] = useState<ActionType | null>(null);
   const [swipeHint, setSwipeHint] = useState<ActionType | null>(null);
-  const [swipeHistory, setSwipeHistory] = useState<
-    Array<{ slug: string; action: ActionType }>
-  >([]);
+  const [swipeHistory, setSwipeHistory] = useState<SwipeHistoryEntry[]>([]);
   const [actionEffect, setActionEffect] = useState<{
     id: number;
     type: ActionType;
   } | null>(null);
-  const [matchModalProfile, setMatchModalProfile] = useState<(typeof psychologists)[number] | null>(
-    null,
-  );
+  const [matchModalProfile, setMatchModalProfile] = useState<Psychologist | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const swipeTimerRef = useRef<number | null>(null);
   const actionEffectTimerRef = useRef<number | null>(null);
@@ -78,23 +91,23 @@ export default function DiscoverPage() {
     const pendingNoticeSlug = loadPendingMessageNotice();
     if (!state) {
       if (pendingNoticeSlug) {
-        const pendingProfile = psychologists.find((item) => item.slug === pendingNoticeSlug) ?? null;
+        const pendingProfile = profilesBySlug.get(pendingNoticeSlug) ?? null;
         setNewMessageProfile(pendingProfile);
       }
       setIsLoading(false);
       return;
     }
 
-    const safeIndex = Math.min(Math.max(0, state.currentIndex), orderedProfiles.length);
+    const safeIndex = Math.min(Math.max(0, state.currentIndex), orderedDiscoverItems.length);
     setUserName(state.userName);
     setCurrentIndex(safeIndex);
     setLikedSlugs(state.likedSlugs);
     if (pendingNoticeSlug) {
-      const pendingProfile = psychologists.find((item) => item.slug === pendingNoticeSlug) ?? null;
+      const pendingProfile = profilesBySlug.get(pendingNoticeSlug) ?? null;
       setNewMessageProfile(pendingProfile);
     }
     setIsLoading(false);
-  }, [orderedProfiles.length]);
+  }, [orderedDiscoverItems.length, profilesBySlug]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -104,9 +117,14 @@ export default function DiscoverPage() {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [orderedProfiles.length]);
+  }, [orderedDiscoverItems.length]);
 
-  const profile = orderedProfiles[currentIndex];
+  const currentItem = orderedDiscoverItems[currentIndex];
+  const profile =
+    currentItem?.type === "profile" ? (profilesBySlug.get(currentItem.profileSlug) ?? null) : null;
+  const era =
+    currentItem?.type === "era" ? (erasBySlug.get(currentItem.eraSlug) ?? null) : null;
+  const isEraCard = currentItem?.type === "era";
   const isFlowLocked = isTransitioning || Boolean(matchModalProfile);
 
   useEffect(() => {
@@ -117,10 +135,27 @@ export default function DiscoverPage() {
     saveState({ userName, currentIndex, likedSlugs });
   }, [currentIndex, likedSlugs, userName]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [currentIndex]);
+
   const overlaySwipe = useMemo(() => {
     const direction = swipeHint ?? swipeDirection;
     if (!direction) {
       return null;
+    }
+
+    if (isEraCard) {
+      return {
+        icon: "star",
+        label: "CONTINUAR",
+        className:
+          "pointer-events-none rounded-full border border-amber-200/70 bg-amber-400/12 px-10 py-6 text-center font-black text-2xl text-amber-100 shadow-2xl shadow-amber-400/30 ring-1 ring-amber-200/35",
+      };
     }
 
     if (direction === "right") {
@@ -147,37 +182,59 @@ export default function DiscoverPage() {
       className:
           "pointer-events-none rounded-full border border-rose-200/70 bg-rose-400/12 text-rose-100 px-14 py-7 text-center font-black text-3xl shadow-2xl shadow-rose-400/30 ring-1 ring-rose-200/35",
       };
-  }, [swipeDirection, swipeHint]);
+  }, [isEraCard, swipeDirection, swipeHint]);
 
   function goNext() {
-    setCurrentIndex((current) => Math.min(current + 1, orderedProfiles.length));
+    setCurrentIndex((current) => Math.min(current + 1, orderedDiscoverItems.length));
   }
 
   function handleAction(type: ActionType) {
-    if (isFlowLocked || !profile || actionGuardRef.current) {
+    if (isFlowLocked || !currentItem || actionGuardRef.current) {
       return;
     }
-    const currentProfile = profile;
+    const normalizedAction = currentItem.type === "era" ? "right" : type;
+    const currentProfile = currentItem.type === "profile" ? profile : null;
 
     actionGuardRef.current = true;
     setIsTransitioning(true);
-    setSwipeDirection(type);
-    setActionEffect({ id: Date.now(), type });
-    setSwipeHistory((current) => [...current, { slug: currentProfile.slug, action: type }]);
+    setSwipeDirection(normalizedAction);
+    setSwipeHistory((current) => [
+      ...current,
+      {
+        index: currentIndex,
+        action: normalizedAction,
+        profileSlug: currentProfile?.slug,
+      },
+    ]);
 
     if (actionEffectTimerRef.current !== null) {
       window.clearTimeout(actionEffectTimerRef.current);
     }
-    actionEffectTimerRef.current = window.setTimeout(() => {
-      setActionEffect(null);
-      actionEffectTimerRef.current = null;
-    }, ACTION_EFFECT_DURATION_MS);
 
     if (swipeTimerRef.current !== null) {
       window.clearTimeout(swipeTimerRef.current);
     }
 
-    if (type === "right" || type === "super") {
+    if (!currentProfile) {
+      setActionEffect(null);
+      swipeTimerRef.current = window.setTimeout(() => {
+        setSwipeDirection(null);
+        setSwipeHint(null);
+        goNext();
+        setIsTransitioning(false);
+        actionGuardRef.current = false;
+        swipeTimerRef.current = null;
+      }, MATCH_MODAL_DELAY_MS);
+      return;
+    }
+
+    setActionEffect({ id: Date.now(), type: normalizedAction });
+    actionEffectTimerRef.current = window.setTimeout(() => {
+      setActionEffect(null);
+      actionEffectTimerRef.current = null;
+    }, ACTION_EFFECT_DURATION_MS);
+
+    if (normalizedAction === "right" || normalizedAction === "super") {
       if (!likedSlugs.includes(currentProfile.slug)) {
         setLikedSlugs((current) => [...current, currentProfile.slug]);
       }
@@ -192,7 +249,7 @@ export default function DiscoverPage() {
     swipeTimerRef.current = window.setTimeout(() => {
       setSwipeDirection(null);
       setSwipeHint(null);
-      if (type === "left") {
+      if (normalizedAction === "left") {
         goNext();
       } else {
         setMatchModalProfile(currentProfile);
@@ -248,20 +305,14 @@ export default function DiscoverPage() {
     }
 
     setSwipeHistory((current) => current.slice(0, -1));
-    setCurrentIndex((current) => {
-      const currentProfile = orderedProfiles[current];
-      if (currentProfile?.slug === lastAction.slug) {
-        return current;
-      }
-      return Math.max(current - 1, 0);
-    });
-    if (lastAction.action === "right" || lastAction.action === "super") {
-      setLikedSlugs((current) => current.filter((slug) => slug !== lastAction.slug));
-      const chatsWithoutProfile = removeChatForProfile(loadChats(), lastAction.slug);
+    setCurrentIndex(lastAction.index);
+    if (lastAction.profileSlug && (lastAction.action === "right" || lastAction.action === "super")) {
+      setLikedSlugs((current) => current.filter((slug) => slug !== lastAction.profileSlug));
+      const chatsWithoutProfile = removeChatForProfile(loadChats(), lastAction.profileSlug);
       saveChats(chatsWithoutProfile);
     }
 
-    if (newMessageProfile?.slug === lastAction.slug) {
+    if (newMessageProfile?.slug === lastAction.profileSlug) {
       setNewMessageProfile(null);
     }
 
@@ -364,7 +415,7 @@ export default function DiscoverPage() {
     );
   }
 
-  if (!profile) {
+  if (!currentItem) {
     return (
       <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center bg-[#060608] px-6 py-16 text-center text-white">
         <p className="text-sm uppercase tracking-[0.35em] text-white/70">
@@ -427,7 +478,9 @@ export default function DiscoverPage() {
       </header>
 
       <p className="mb-4 text-xs font-medium text-white/70">
-        Arraste no card para a direita/esquerda para decidir. Na foto, arraste para trocar.
+        {isEraCard
+          ? "Arraste para seguir de era."
+          : "Arraste no card para a direita/esquerda para decidir. Na foto, arraste para trocar."}
       </p>
 
       <AnimatePresence>
@@ -609,19 +662,30 @@ export default function DiscoverPage() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        <ProfileCard
-          key={profile.slug}
-          profile={profile}
-          onPass={() => handleAction("left")}
-          onLike={() => handleAction("right")}
-          onSuperLike={() => handleAction("super")}
-          onUndo={swipeHistory.length > 0 ? handleUndoLastAction : undefined}
-          onSwipeHint={setSwipeHint}
-          isBusy={isFlowLocked}
-          swipeDirection={swipeDirection}
-          interactive
-          photoSwipeEnabled
-        />
+        {era ? (
+          <EraCard
+            key={era.slug}
+            era={era}
+            onContinue={() => handleAction("right")}
+            onSwipeHint={setSwipeHint}
+            isBusy={isFlowLocked}
+            swipeDirection={swipeDirection}
+          />
+        ) : profile ? (
+          <ProfileCard
+            key={profile.slug}
+            profile={profile}
+            onPass={() => handleAction("left")}
+            onLike={() => handleAction("right")}
+            onSuperLike={() => handleAction("super")}
+            onUndo={swipeHistory.length > 0 ? handleUndoLastAction : undefined}
+            onSwipeHint={setSwipeHint}
+            isBusy={isFlowLocked}
+            swipeDirection={swipeDirection}
+            interactive
+            photoSwipeEnabled
+          />
+        ) : null}
       </AnimatePresence>
 
       <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-6">
@@ -637,14 +701,16 @@ export default function DiscoverPage() {
               event.currentTarget.focus();
             }}
             disabled={swipeHistory.length === 0}
-            className="z-50 grid h-10 w-10 place-items-center shrink-0 rounded-full border border-amber-300/35 bg-amber-300/10 p-0 text-amber-200 shadow-lg shadow-amber-300/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:scale-100 disabled:opacity-40"
+            className={`z-50 grid place-items-center shrink-0 rounded-full border border-amber-300/35 bg-amber-300/10 p-0 text-amber-200 shadow-lg shadow-amber-300/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:scale-100 disabled:opacity-40 ${
+              isEraCard ? "h-8 w-8" : "h-10 w-10"
+            }`}
             aria-label="Desfazer último swipe"
           >
             <svg
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className={isEraCard ? "h-4 w-4" : "h-5 w-5"}
             >
               <path
                 d="M3 12a9 9 0 1 1 2.635 6.364"
@@ -663,87 +729,89 @@ export default function DiscoverPage() {
             </svg>
           </button>
 
-          <div className="grid flex-1 max-w-[17.5rem] grid-cols-3 gap-5">
-            <button
-              type="button"
-              onTouchStart={(event) => {
-                event.preventDefault();
-                handleActionTap("left")();
-              }}
-              onClick={handleActionTap("left")}
-              disabled={isFlowLocked}
-              className="grid h-12 w-12 place-items-center rounded-full border border-rose-300/35 bg-rose-500/10 text-rose-200 shadow-lg shadow-rose-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
-              aria-label="Passei"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+          {isEraCard ? null : (
+            <div className="grid max-w-[17.5rem] flex-1 grid-cols-3 gap-5">
+              <button
+                type="button"
+                onTouchStart={(event) => {
+                  event.preventDefault();
+                  handleActionTap("left")();
+                }}
+                onClick={handleActionTap("left")}
+                disabled={isFlowLocked}
+                className="grid h-12 w-12 place-items-center rounded-full border border-rose-300/35 bg-rose-500/10 text-rose-200 shadow-lg shadow-rose-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
+                aria-label="Passei"
               >
-                <path
-                  d="m18 6-12 12M6 6l12 12"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                >
+                  <path
+                    d="m18 6-12 12M6 6l12 12"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
-            <button
-              type="button"
-              onTouchStart={(event) => {
-                event.preventDefault();
-                handleActionTap("super")();
-              }}
-              onClick={handleActionTap("super")}
-              disabled={isFlowLocked}
-              className="grid h-12 w-12 place-items-center rounded-full border border-sky-300/35 bg-sky-500/10 text-sky-200 shadow-lg shadow-sky-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
-              aria-label="Super gostar"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+              <button
+                type="button"
+                onTouchStart={(event) => {
+                  event.preventDefault();
+                  handleActionTap("super")();
+                }}
+                onClick={handleActionTap("super")}
+                disabled={isFlowLocked}
+                className="grid h-12 w-12 place-items-center rounded-full border border-sky-300/35 bg-sky-500/10 text-sky-200 shadow-lg shadow-sky-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
+                aria-label="Super gostar"
               >
-                <path
-                  d="m12 2.5 3.1 6.3 6.9.6-5.1 4.7 1.6 6.8L12 18.4 6 20.9l1.4-6.8-5.1-4.7 6.9-.6L12 2.5Z"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                >
+                  <path
+                    d="m12 2.5 3.1 6.3 6.9.6-5.1 4.7 1.6 6.8L12 18.4 6 20.9l1.4-6.8-5.1-4.7 6.9-.6L12 2.5Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
 
-            <button
-              type="button"
-              onTouchStart={(event) => {
-                event.preventDefault();
-                handleActionTap("right")();
-              }}
-              onClick={handleActionTap("right")}
-              disabled={isFlowLocked}
-              className="grid h-12 w-12 place-items-center rounded-full border border-emerald-300/35 bg-emerald-500/10 text-emerald-200 shadow-lg shadow-emerald-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
-              aria-label="Gostei"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+              <button
+                type="button"
+                onTouchStart={(event) => {
+                  event.preventDefault();
+                  handleActionTap("right")();
+                }}
+                onClick={handleActionTap("right")}
+                disabled={isFlowLocked}
+                className="grid h-12 w-12 place-items-center rounded-full border border-emerald-300/35 bg-emerald-500/10 text-emerald-200 shadow-lg shadow-emerald-500/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:scale-100 disabled:opacity-60"
+                aria-label="Gostei"
               >
-                <path
-                  d="m12 21-1.3-.9C5 16.6 2 13.8 2 10.4c0-3 2.3-5.4 5.4-5.4 1.8 0 3.6.8 4.6 2.2.15.2.29.4.4.6.11-.2.25-.4.4-.6 1-1.4 2.8-2.2 4.6-2.2 3.1 0 5.4 2.4 5.4 5.4 0 3.4-3 6.2-8.7 9.7Z"
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                >
+                  <path
+                    d="m12 21-1.3-.9C5 16.6 2 13.8 2 10.4c0-3 2.3-5.4 5.4-5.4 1.8 0 3.6.8 4.6 2.2.15.2.29.4.4.6.11-.2.25-.4.4-.6 1-1.4 2.8-2.2 4.6-2.2 3.1 0 5.4 2.4 5.4 5.4 0 3.4-3 6.2-8.7 9.7Z"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
