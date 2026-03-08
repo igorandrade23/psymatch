@@ -264,9 +264,6 @@ export default function DiscoverPage() {
     if (newMessageProfile?.slug === lastAction.slug) {
       setNewMessageProfile(null);
     }
-    if (matchModalProfile?.slug === lastAction.slug) {
-      setMatchModalProfile(null);
-    }
 
     setActionEffect(null);
     setSwipeDirection(null);

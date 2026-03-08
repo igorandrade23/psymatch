@@ -40,27 +40,33 @@ export function syncChatsWithMatches(existingChats: MatchChat[], matchedProfiles
   return Array.from(bySlug.values());
 }
 
-export function ensureChatForProfile(chats: MatchChat[], slug: string, matchMessage: string) {
+export function ensureChatForProfile(
+  chats: MatchChat[],
+  slug: string,
+  matchMessage: string,
+): MatchChat[] {
   if (chats.some((chat) => chat.slug === slug)) {
     return chats;
   }
 
+  const newChat: MatchChat = {
+    slug,
+    messages: [
+      {
+        id: buildMessageId(),
+        sender: "match",
+        text: matchMessage,
+        createdAt: Date.now(),
+      },
+    ],
+  };
+
   return [
     ...chats,
-    {
-      slug,
-      messages: [
-        {
-          id: buildMessageId(),
-          sender: "match",
-          text: matchMessage,
-          createdAt: Date.now(),
-        },
-      ],
-    },
+    newChat,
   ];
 }
 
-export function removeChatForProfile(chats: MatchChat[], slug: string) {
+export function removeChatForProfile(chats: MatchChat[], slug: string): MatchChat[] {
   return chats.filter((chat) => chat.slug !== slug);
 }

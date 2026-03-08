@@ -59,7 +59,7 @@ export const psychologists: Psychologist[] = [
       "/placeholders/skinner/2.jpeg",
       "/placeholders/skinner/3.jpeg",
     ],
-    ageLabel: "44 anos",
+    ageLabel: "55 anos",
     role: "Engenheiro de Pombos e Sommelier de Consequências",
     distanceLabel: "A 10 km de você (num esquema de razão variável)",
     sign: "Peixes",
