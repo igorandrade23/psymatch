@@ -5,7 +5,13 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { psychologists } from "@/data/psychologists";
 import { buildMessageId, ensureChatForProfile } from "@/lib/chats";
-import { loadChats, loadState, saveChats, type MatchChat } from "@/lib/storage";
+import {
+  loadChats,
+  loadState,
+  saveChats,
+  type ChatMessage,
+  type MatchChat,
+} from "@/lib/storage";
 
 export default function MessageThreadPage() {
   const params = useParams<{ slug: string }>();
@@ -55,24 +61,28 @@ export default function MessageThreadPage() {
       return;
     }
 
-    const nextChats = chats.map((item) => {
+    const newMessage: ChatMessage = {
+      id: buildMessageId(),
+      sender: "user",
+      text,
+      createdAt: Date.now(),
+    };
+
+    const nextChats = chats.map<MatchChat>((item) => {
       if (item.slug !== chat.slug) {
         return item;
       }
 
-      return {
+      const updatedChat: MatchChat = {
         ...item,
         repliedAt: Date.now(),
         messages: [
           ...item.messages,
-          {
-            id: buildMessageId(),
-            sender: "user",
-            text,
-            createdAt: Date.now(),
-          },
+          newMessage,
         ],
       };
+
+      return updatedChat;
     });
 
     setChats(nextChats);

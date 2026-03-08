@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MessageNotice } from "@/components/message-notice";
 import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
@@ -15,7 +14,7 @@ import {
   loadState,
 } from "@/lib/storage";
 
-export default function MatchesPage() {
+function MatchesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [userName, setUserName] = useState("");
@@ -183,5 +182,21 @@ export default function MatchesPage() {
         </section>
       )}
     </main>
+  );
+}
+
+export default function MatchesPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-8 text-white">
+          <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+            <h1 className="text-2xl font-semibold">Carregando matches...</h1>
+          </section>
+        </main>
+      }
+    >
+      <MatchesPageContent />
+    </Suspense>
   );
 }
