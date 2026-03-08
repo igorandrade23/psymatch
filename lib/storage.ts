@@ -23,6 +23,7 @@ export type MatchChat = {
 
 const STORAGE_KEY = "psymatch-state";
 const CHAT_STORAGE_KEY = "psymatch-chats";
+const PENDING_MESSAGE_NOTICE_KEY = "psymatch-pending-message-notice";
 
 export function loadState(): StoredState | null {
   if (typeof window === "undefined") {
@@ -76,5 +77,29 @@ export function saveChats(chats: MatchChat[]) {
   }
 
   window.localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chats));
+}
+
+export function loadPendingMessageNotice() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem(PENDING_MESSAGE_NOTICE_KEY);
+}
+
+export function savePendingMessageNotice(slug: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(PENDING_MESSAGE_NOTICE_KEY, slug);
+}
+
+export function clearPendingMessageNotice() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(PENDING_MESSAGE_NOTICE_KEY);
 }
 

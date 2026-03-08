@@ -30,6 +30,22 @@ const SWIPE_DISTANCE_PERCENT = 0.42;
 const SWIPE_DISTANCE_MIN = 92;
 const SWIPE_DISTANCE_MAX = 240;
 
+type TextSection = {
+  title: string;
+  eyebrow: string;
+  tone: string;
+  content: string;
+};
+
+type ListSection = {
+  title: string;
+  eyebrow: string;
+  tone: string;
+  items: string[];
+};
+
+type ProfileSection = TextSection | ListSection;
+
 export function ProfileCard({
   profile,
   onPass,
@@ -56,16 +72,6 @@ export function ProfileCard({
   const metaRows = useMemo(
     () => [
       {
-        icon: "🧠",
-        label: "Escola",
-        value: profile.school,
-      },
-      {
-        icon: "🧪",
-        label: "Papel",
-        value: profile.role,
-      },
-      {
         icon: "📍",
         label: "Distância",
         value: profile.distanceLabel,
@@ -79,13 +85,74 @@ export function ProfileCard({
     [profile],
   );
 
-  const aboutText = useMemo(() => {
-    if (isFunnyMode) {
-      return `${profile.lookingFor}\n\n${profile.labPuns.slice(0, 2).join("\n")}`;
+  const profileSections = useMemo(() => {
+    const sections: ProfileSection[] = [
+      {
+        title: "Sobre mim",
+        eyebrow: "Sobre mim",
+        tone: "text-white/85",
+        content: profile.bio,
+      },
+      {
+        title: "Buscando",
+        eyebrow: "Buscando",
+        tone: "text-fuchsia-100",
+        content: profile.lookingFor,
+      },
+      {
+        title: profile.experimentTitle,
+        eyebrow: profile.experimentTitle,
+        tone: "text-white/85",
+        content: profile.experimentBody,
+      },
+    ];
+
+    if (profile.likes.length > 0) {
+      sections.push({
+        title: "Curte",
+        eyebrow: "Curte",
+        tone: "text-emerald-100",
+        items: profile.likes,
+      });
     }
 
-    return `${profile.bio}\n\n${profile.experimentTitle}: ${profile.experimentBody}`;
-  }, [isFunnyMode, profile.bio, profile.experimentBody, profile.experimentTitle, profile.labPuns, profile.lookingFor]);
+    if (profile.dislikes && profile.dislikes.length > 0) {
+      sections.push({
+        title: "Evita",
+        eyebrow: "Evita",
+        tone: "text-rose-100",
+        items: profile.dislikes,
+      });
+    }
+
+    sections.push({
+      title: isFunnyMode ? "Modo cãozinho" : "Cantadas de laboratório",
+      eyebrow: isFunnyMode ? "Modo cãozinho" : "Cantadas de laboratório",
+      tone: "text-amber-100",
+      items: profile.labPuns,
+    });
+
+    return sections;
+  }, [
+    isFunnyMode,
+    profile.bio,
+    profile.dislikes,
+    profile.experimentBody,
+    profile.experimentTitle,
+    profile.labPuns,
+    profile.likes,
+    profile.lookingFor,
+  ]);
+
+  const visibleSections = useMemo(() => {
+    return profileSections.filter((section) => {
+      if ("content" in section) {
+        return section.content.trim().length > 0;
+      }
+
+      return section.items.length > 0;
+    });
+  }, [profileSections]);
 
   useEffect(() => {
     if (!interactive) {
@@ -356,14 +423,22 @@ export function ProfileCard({
         style={fullProfileView || interactive ? undefined : { maxHeight: "39vh" }}
       >
         <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[2rem] font-bold leading-tight text-white">
-            {profile.name}
-          </h1>
-          <p className="mt-1 text-2xl font-medium text-white/80">
-            {profile.ageLabel}
-          </p>
-        </div>
+          <div>
+            <h1 className="text-[2rem] font-bold leading-tight text-white">
+              {profile.name}
+            </h1>
+            <p className="mt-1 text-2xl font-medium text-white/80">
+              {profile.ageLabel} | {profile.role}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-100">
+                Signo: {profile.sign}
+              </span>
+              <span className="rounded-full border border-fuchsia-300/25 bg-fuchsia-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-100">
+                Escola: {profile.school}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="mt-6 space-y-3">
@@ -385,13 +460,34 @@ export function ProfileCard({
           ))}
         </div>
 
-        <div className="mt-8 rounded-[1.25rem] bg-black/30 p-4 ring-1 ring-white/10">
-          <p className="text-[11px] uppercase tracking-[0.28em] text-white/50">
-            About me
-          </p>
-          <p className="mt-3 whitespace-pre-line leading-7 text-white/85">
-            {aboutText}
-          </p>
+        <div className="mt-8 space-y-4">
+          {visibleSections.map((section) => (
+            <div
+              key={section.title}
+              className="rounded-[1.25rem] bg-black/30 p-4 ring-1 ring-white/10"
+            >
+              <p className="text-[11px] uppercase tracking-[0.28em] text-white/50">
+                {section.eyebrow}
+              </p>
+
+              {"content" in section ? (
+                <p className={`mt-3 whitespace-pre-line leading-7 ${section.tone}`}>
+                  {section.content}
+                </p>
+              ) : (
+                <ul className="mt-3 space-y-2">
+                  {section.items.map((item) => (
+                    <li
+                      key={item}
+                      className={`rounded-2xl border border-white/8 bg-white/[0.03] px-3 py-2 leading-6 ${section.tone}`}
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
         </div>
 
       </section>

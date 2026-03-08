@@ -2,31 +2,77 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { MessageNotice } from "@/components/message-notice";
 import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
 import type { Psychologist } from "@/data/psychologists";
-import { loadState } from "@/lib/storage";
+import {
+  clearPendingMessageNotice,
+  loadPendingMessageNotice,
+  loadState,
+} from "@/lib/storage";
 
 export default function MatchesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [userName, setUserName] = useState("");
   const [likedSlugs, setLikedSlugs] = useState<string[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<Psychologist | null>(null);
+  const [newMessageProfile, setNewMessageProfile] = useState<Psychologist | null>(null);
 
   useEffect(() => {
     const state = loadState();
+    const pendingNoticeSlug = loadPendingMessageNotice();
     if (!state) {
+      if (pendingNoticeSlug) {
+        const pendingProfile = psychologists.find((item) => item.slug === pendingNoticeSlug) ?? null;
+        setNewMessageProfile(pendingProfile);
+      }
       return;
     }
 
     setUserName(state.userName);
     setLikedSlugs(state.likedSlugs);
+    if (pendingNoticeSlug) {
+      const pendingProfile = psychologists.find((item) => item.slug === pendingNoticeSlug) ?? null;
+      setNewMessageProfile(pendingProfile);
+    }
   }, []);
 
   const matches = useMemo(() => {
     const ordered = [...psychologists].sort((a, b) => a.order - b.order);
     return ordered.filter((profile) => likedSlugs.includes(profile.slug));
   }, [likedSlugs]);
+
+  useEffect(() => {
+    const requestedSlug = searchParams.get("profile");
+    if (!requestedSlug || matches.length === 0) {
+      return;
+    }
+
+    const requestedProfile = matches.find((profile) => profile.slug === requestedSlug) ?? null;
+    if (requestedProfile) {
+      setSelectedProfile(requestedProfile);
+    }
+  }, [matches, searchParams]);
+
+  function handleIgnoreMessageNotice() {
+    setNewMessageProfile(null);
+    clearPendingMessageNotice();
+  }
+
+  function handleOpenMessageNotice() {
+    if (!newMessageProfile) {
+      return;
+    }
+
+    const slug = newMessageProfile.slug;
+    handleIgnoreMessageNotice();
+    router.push(`/messages/${slug}`);
+  }
 
   if (selectedProfile) {
     return (
@@ -59,11 +105,18 @@ export default function MatchesPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-8 text-white">
+      <MessageNotice
+        profile={newMessageProfile}
+        onClose={handleIgnoreMessageNotice}
+        onOpen={handleOpenMessageNotice}
+        noticeKeyPrefix="matches-message-notice"
+      />
+
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-[0.35em] text-white/65">Biblioteca afetiva</p>
           <h1 className="mt-2 text-3xl font-semibold">
-            Matches de {userName || "quem estuda com criterio"}
+            Matches de {userName || "quem estuda com critério"}
           </h1>
         </div>
 
@@ -87,7 +140,7 @@ export default function MatchesPage() {
         <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
           <h2 className="text-2xl font-semibold">Ainda sem matches</h2>
           <p className="mt-3 max-w-2xl leading-7 text-white/70">
-            Quando voce der like em algum perfil, ele aparece aqui e o chat abre na aba Mensagens.
+            Quando você der like em algum perfil, ele aparece aqui e o chat abre na aba Mensagens.
           </p>
         </section>
       ) : (

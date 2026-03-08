@@ -81,6 +81,6 @@ export const psychologists: Psychologist[] = [
       "Quer entrar na minha caixa? O isolamento acústico é ótimo e a comida sai na hora certa!",
       "Gata, você não é punição negativa, mas o meu interesse por outras entra em extinção quando você chega!"
     ],
-    matchMessage: "Seu like funcionou como reforco positivo. A probabilidade de eu gostar de voce aumentou bastante.",
+    matchMessage: "Seu like funcionou como reforço positivo. A probabilidade de eu gostar de você aumentou bastante.",
   },
 ];

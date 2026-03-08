@@ -4,10 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { MatchModal } from "@/components/match-modal";
+import { MessageNotice } from "@/components/message-notice";
 import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
 import { ensureChatForProfile, removeChatForProfile } from "@/lib/chats";
-import { loadChats, loadState, saveChats, saveState } from "@/lib/storage";
+import {
+  clearPendingMessageNotice,
+  loadChats,
+  loadPendingMessageNotice,
+  loadState,
+  saveChats,
+  savePendingMessageNotice,
+  saveState,
+} from "@/lib/storage";
 
 const ACTION_PARTICLES = [
   { x: -130, y: -70, delay: 0.02 },
@@ -55,11 +65,9 @@ export default function DiscoverPage() {
     id: number;
     type: ActionType;
   } | null>(null);
-  const [feedbackModal, setFeedbackModal] = useState<{
-    type: ActionType;
-    profile: (typeof psychologists)[number];
-    message: string;
-  } | null>(null);
+  const [matchModalProfile, setMatchModalProfile] = useState<(typeof psychologists)[number] | null>(
+    null,
+  );
   const [isTransitioning, setIsTransitioning] = useState(false);
   const swipeTimerRef = useRef<number | null>(null);
   const actionEffectTimerRef = useRef<number | null>(null);
@@ -67,7 +75,12 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     const state = loadState();
+    const pendingNoticeSlug = loadPendingMessageNotice();
     if (!state) {
+      if (pendingNoticeSlug) {
+        const pendingProfile = psychologists.find((item) => item.slug === pendingNoticeSlug) ?? null;
+        setNewMessageProfile(pendingProfile);
+      }
       setIsLoading(false);
       return;
     }
@@ -76,6 +89,10 @@ export default function DiscoverPage() {
     setUserName(state.userName);
     setCurrentIndex(safeIndex);
     setLikedSlugs(state.likedSlugs);
+    if (pendingNoticeSlug) {
+      const pendingProfile = psychologists.find((item) => item.slug === pendingNoticeSlug) ?? null;
+      setNewMessageProfile(pendingProfile);
+    }
     setIsLoading(false);
   }, [orderedProfiles.length]);
 
@@ -90,7 +107,7 @@ export default function DiscoverPage() {
   }, [orderedProfiles.length]);
 
   const profile = orderedProfiles[currentIndex];
-  const isFlowLocked = isTransitioning || Boolean(feedbackModal);
+  const isFlowLocked = isTransitioning || Boolean(matchModalProfile);
 
   useEffect(() => {
     if (!userName) {
@@ -136,29 +153,17 @@ export default function DiscoverPage() {
     setCurrentIndex((current) => Math.min(current + 1, orderedProfiles.length));
   }
 
-  function randomFrom(messages: string[] | undefined, fallback: string) {
-    if (!messages || messages.length === 0) {
-      return fallback;
-    }
-    const randomIndex = Math.floor(Math.random() * messages.length);
-    return messages[randomIndex];
-  }
-
   function handleAction(type: ActionType) {
     if (isFlowLocked || !profile || actionGuardRef.current) {
       return;
     }
-
-    const feedbackMessage =
-      type === "left"
-        ? randomFrom(profile.dislikes, "Nao rolou quimica comportamental desta vez.")
-        : randomFrom(profile.likes, "Curti seu estilo, vamos continuar.");
+    const currentProfile = profile;
 
     actionGuardRef.current = true;
     setIsTransitioning(true);
     setSwipeDirection(type);
     setActionEffect({ id: Date.now(), type });
-    setSwipeHistory((current) => [...current, { slug: profile.slug, action: type }]);
+    setSwipeHistory((current) => [...current, { slug: currentProfile.slug, action: type }]);
 
     if (actionEffectTimerRef.current !== null) {
       window.clearTimeout(actionEffectTimerRef.current);
@@ -173,46 +178,63 @@ export default function DiscoverPage() {
     }
 
     if (type === "right" || type === "super") {
-      if (!likedSlugs.includes(profile.slug)) {
-        setLikedSlugs((current) => [...current, profile.slug]);
+      if (!likedSlugs.includes(currentProfile.slug)) {
+        setLikedSlugs((current) => [...current, currentProfile.slug]);
       }
-      const nextChats = ensureChatForProfile(loadChats(), profile.slug, profile.matchMessage);
+      const nextChats = ensureChatForProfile(
+        loadChats(),
+        currentProfile.slug,
+        currentProfile.matchMessage,
+      );
       saveChats(nextChats);
     }
 
     swipeTimerRef.current = window.setTimeout(() => {
       setSwipeDirection(null);
       setSwipeHint(null);
-      setFeedbackModal({
-        type,
-        profile,
-        message: feedbackMessage,
-      });
+      if (type === "left") {
+        goNext();
+      } else {
+        setMatchModalProfile(currentProfile);
+      }
       setIsTransitioning(false);
       actionGuardRef.current = false;
       swipeTimerRef.current = null;
     }, MATCH_MODAL_DELAY_MS);
   }
 
-  function handleConfirmFeedbackModal() {
-    if (!feedbackModal) {
+  function handleCloseMatchModal() {
+    if (!matchModalProfile) {
       return;
     }
 
-    if (feedbackModal.type === "left") {
-      setFeedbackModal(null);
-      goNext();
-      return;
-    }
-
-    setNewMessageProfile(feedbackModal.profile);
-    setFeedbackModal(null);
+    savePendingMessageNotice(matchModalProfile.slug);
+    setNewMessageProfile(matchModalProfile);
+    setMatchModalProfile(null);
     goNext();
+  }
+
+  function handleViewMatchedProfile() {
+    if (!matchModalProfile) {
+      return;
+    }
+
+    const slug = matchModalProfile.slug;
+    savePendingMessageNotice(slug);
+    setNewMessageProfile(matchModalProfile);
+    setMatchModalProfile(null);
+    setActionEffect(null);
+    setSwipeDirection(null);
+    setSwipeHint(null);
+    setIsTransitioning(false);
+    actionGuardRef.current = false;
+    goNext();
+    router.push(`/matches?profile=${slug}`);
   }
 
   function handleUndoLastAction() {
     const lastAction = swipeHistory[swipeHistory.length - 1];
-    if (!lastAction || isTransitioning || actionGuardRef.current || feedbackModal) {
+    if (!lastAction || isTransitioning || actionGuardRef.current || matchModalProfile) {
       return;
     }
 
@@ -242,8 +264,8 @@ export default function DiscoverPage() {
     if (newMessageProfile?.slug === lastAction.slug) {
       setNewMessageProfile(null);
     }
-    if (feedbackModal?.profile.slug === lastAction.slug) {
-      setFeedbackModal(null);
+    if (matchModalProfile?.slug === lastAction.slug) {
+      setMatchModalProfile(null);
     }
 
     setActionEffect(null);
@@ -264,7 +286,8 @@ export default function DiscoverPage() {
     }
 
     setNewMessageProfile(null);
-    setFeedbackModal(null);
+    clearPendingMessageNotice();
+    setMatchModalProfile(null);
     setActionEffect(null);
     setSwipeDirection(null);
     setSwipeHint(null);
@@ -348,15 +371,11 @@ export default function DiscoverPage() {
     return (
       <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center bg-[#060608] px-6 py-16 text-center text-white">
         <p className="text-sm uppercase tracking-[0.35em] text-white/70">
-          Jornada concluida
+          Jornada concluída
         </p>
         <h1 className="mt-4 text-5xl font-semibold">
-          Voce chegou ao fim da linha do tempo inicial.
+          Não temos mais pessoas disponíveis na sua área.
         </h1>
-        <p className="mt-5 text-lg leading-8 text-white/75">
-          {userName || "Voce"} explorou todos os perfis disponiveis por enquanto.
-          Seus matches continuam salvos localmente.
-        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           {swipeHistory.length > 0 && currentIndex > 0 ? (
             <button
@@ -389,7 +408,7 @@ export default function DiscoverPage() {
       <header className="mb-5 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-[0.35em] text-white/70">
-            Ola, {userName || "estudante"}
+            Olá, {userName || "estudante"}
           </p>
           <h1 className="mt-2 text-2xl font-semibold">PsyMatch</h1>
         </div>
@@ -483,82 +502,17 @@ export default function DiscoverPage() {
         ) : null}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {feedbackModal ? (
-          <motion.div
-            key={`feedback-modal-${feedbackModal.profile.slug}-${feedbackModal.type}`}
-            className="fixed inset-0 z-[75] grid place-items-center bg-black/70 px-4 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className={`w-full max-w-sm rounded-[1.6rem] border p-5 shadow-2xl ${
-                feedbackModal.type === "left"
-                  ? "border-rose-300/35 bg-gradient-to-b from-[#2a171d] to-[#130b10]"
-                  : feedbackModal.type === "super"
-                    ? "border-sky-300/35 bg-gradient-to-b from-[#13232d] to-[#0b121a]"
-                    : "border-emerald-300/35 bg-gradient-to-b from-[#15271e] to-[#0b130f]"
-              }`}
-              initial={{ y: 26, scale: 0.96, opacity: 0 }}
-              animate={{ y: 0, scale: 1, opacity: 1 }}
-              exit={{ y: 16, scale: 0.98, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 280, damping: 24 }}
-            >
-              <p className="text-xs uppercase tracking-[0.28em] text-white/60">
-                {feedbackModal.type === "left"
-                  ? "PASSEI"
-                  : feedbackModal.type === "super"
-                    ? "SUPERLIKE"
-                    : "LIKE"}
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">{feedbackModal.profile.name}</h2>
-              <p className="mt-4 text-sm leading-7 text-white/90">{feedbackModal.message}</p>
-              <button
-                type="button"
-                onClick={handleConfirmFeedbackModal}
-                className="mt-5 w-full rounded-full border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white shadow-lg"
-              >
-                {feedbackModal.type === "left" ? "Continuar explorando" : "Continuar"}
-              </button>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      <MatchModal
+        profile={matchModalProfile}
+        onClose={handleCloseMatchModal}
+        onViewProfile={handleViewMatchedProfile}
+      />
 
-      <AnimatePresence>
-        {newMessageProfile ? (
-          <motion.div
-            key={`message-notice-${newMessageProfile.slug}`}
-            className="fixed inset-x-0 bottom-24 z-[80] mx-auto w-full max-w-sm px-4"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 28 }}
-          >
-            <motion.div
-              drag="x"
-              dragElastic={0.12}
-              dragMomentum={false}
-              dragConstraints={{ left: -220, right: 220 }}
-              onDragEnd={(_, info) => {
-                if (Math.abs(info.offset.x) > 110) {
-                  handleIgnoreMessageNotice();
-                }
-              }}
-              onClick={handleOpenMessageNotice}
-              className="cursor-pointer rounded-2xl border border-sky-200/35 bg-gradient-to-r from-sky-500/25 via-cyan-500/20 to-blue-500/20 px-4 py-3 shadow-2xl shadow-sky-500/25 backdrop-blur"
-            >
-              <p className="text-[11px] uppercase tracking-[0.24em] text-sky-100/80">Nova mensagem</p>
-              <p className="mt-1 text-sm font-semibold text-white">
-                Voce tem uma nova mensagem de {newMessageProfile.name}. Clique para ver.
-              </p>
-              <p className="mt-1 text-xs text-white/70">
-                Arraste para o lado para ignorar e ver depois em Mensagens.
-              </p>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      <MessageNotice
+        profile={newMessageProfile}
+        onClose={handleIgnoreMessageNotice}
+        onOpen={handleOpenMessageNotice}
+      />
 
       <AnimatePresence>
         {actionEffect ? (
@@ -625,51 +579,52 @@ export default function DiscoverPage() {
 
             {(actionEffect.type === "super" ? SUPERLIKE_PARTICLES : ACTION_PARTICLES).map(
               (particle, index) => (
-              <motion.span
-                key={`${actionEffect.id}-${index}`}
-                className={`absolute text-2xl ${
-                  actionEffect.type === "right"
-                    ? "text-emerald-200/95"
-                    : actionEffect.type === "super"
-                      ? "text-sky-200/95"
-                      : "text-rose-200/95"
-                }`}
-                initial={{ opacity: 0, scale: 0.4, x: 0, y: 0 }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  scale:
-                    actionEffect.type === "super" ? [0.3, 1.45, 0.55] : [0.4, 1.15, 0.7],
-                  x: particle.x,
-                  y: particle.y,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{
-                  duration: actionEffect.type === "super" ? 0.7 : 0.5,
-                  delay: particle.delay,
-                  ease: "easeOut",
-                }}
-              >
-                {actionEffect.type === "right" ? "♥" : actionEffect.type === "super" ? "★" : "✕"}
-              </motion.span>
-            ))}
+                <motion.span
+                  key={`${actionEffect.id}-${index}`}
+                  className={`absolute text-2xl ${
+                    actionEffect.type === "right"
+                      ? "text-emerald-200/95"
+                      : actionEffect.type === "super"
+                        ? "text-sky-200/95"
+                        : "text-rose-200/95"
+                  }`}
+                  initial={{ opacity: 0, scale: 0.4, x: 0, y: 0 }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale:
+                      actionEffect.type === "super" ? [0.3, 1.45, 0.55] : [0.4, 1.15, 0.7],
+                    x: particle.x,
+                    y: particle.y,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: actionEffect.type === "super" ? 0.7 : 0.5,
+                    delay: particle.delay,
+                    ease: "easeOut",
+                  }}
+                >
+                  {actionEffect.type === "right" ? "♥" : actionEffect.type === "super" ? "★" : "✕"}
+                </motion.span>
+              ),
+            )}
           </motion.div>
         ) : null}
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-          <ProfileCard
-            key={profile.slug}
-            profile={profile}
-            onPass={() => handleAction("left")}
-            onLike={() => handleAction("right")}
-            onSuperLike={() => handleAction("super")}
-            onUndo={swipeHistory.length > 0 ? handleUndoLastAction : undefined}
-            onSwipeHint={setSwipeHint}
-            isBusy={isFlowLocked}
-            swipeDirection={swipeDirection}
-            interactive
-            photoSwipeEnabled
-          />
+        <ProfileCard
+          key={profile.slug}
+          profile={profile}
+          onPass={() => handleAction("left")}
+          onLike={() => handleAction("right")}
+          onSuperLike={() => handleAction("super")}
+          onUndo={swipeHistory.length > 0 ? handleUndoLastAction : undefined}
+          onSwipeHint={setSwipeHint}
+          isBusy={isFlowLocked}
+          swipeDirection={swipeDirection}
+          interactive
+          photoSwipeEnabled
+        />
       </AnimatePresence>
 
       <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-6">
@@ -686,7 +641,7 @@ export default function DiscoverPage() {
             }}
             disabled={swipeHistory.length === 0}
             className="z-50 grid h-10 w-10 place-items-center shrink-0 rounded-full border border-amber-300/35 bg-amber-300/10 p-0 text-amber-200 shadow-lg shadow-amber-300/30 backdrop-blur-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:scale-100 disabled:opacity-40"
-            aria-label="Desfazer ultimo swipe"
+            aria-label="Desfazer último swipe"
           >
             <svg
               viewBox="0 0 24 24"

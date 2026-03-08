@@ -132,7 +132,7 @@ export default function MessageThreadPage() {
 
         {chat.repliedAt ? (
           <p className="mt-4 rounded-xl border border-amber-200/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
-            {userName || "Voce"} respondeu. Desde entao, ficou no vacuo.
+            {profile.name} não está online no momento (por que será?), quando estiver online iremos te notificar.
           </p>
         ) : (
           <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">

@@ -1,16 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Psychologist } from "@/data/psychologists";
 
 type MatchModalProps = {
   profile: Psychologist | null;
-  userName: string;
   onClose: () => void;
+  onViewProfile: () => void;
 };
 
-export function MatchModal({ profile, userName, onClose }: MatchModalProps) {
+export function MatchModal({ profile, onClose, onViewProfile }: MatchModalProps) {
   const heartIcons = [0, 1, 2, 3, 4, 5];
 
   return (
@@ -63,19 +62,20 @@ export function MatchModal({ profile, userName, onClose }: MatchModalProps) {
               {profile.name}
             </h2>
             <p className="mt-2 text-sm text-white/75">
-              {userName}, voce recebeu um novo chat.
+              Vocês deram match.
             </p>
 
             <p className="mt-4 text-sm leading-6 text-white/75">
-              Abra a aba de mensagens para ler e responder.
+              O chat foi liberado e o perfil completo já está salvo nos seus matches.
             </p>
 
-            <Link
-              href="/messages"
-              className="mt-5 block w-full rounded-full border border-sky-300/35 bg-sky-500/20 px-4 py-3 text-center text-sm font-semibold tracking-[0.08em] text-sky-100 shadow-lg shadow-sky-500/30 transition hover:scale-[1.01] sm:text-base"
+            <button
+              type="button"
+              onClick={onViewProfile}
+              className="mt-5 w-full rounded-full border border-sky-300/35 bg-sky-500/20 px-4 py-3 text-center text-sm font-semibold tracking-[0.08em] text-sky-100 shadow-lg shadow-sky-500/30 transition hover:scale-[1.01] sm:text-base"
             >
-              Ir para mensagens
-            </Link>
+              Ver perfil
+            </button>
 
             <button
               type="button"
