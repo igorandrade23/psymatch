@@ -20,13 +20,85 @@ export type Psychologist = {
 
 export const psychologists: Psychologist[] = [
   {
-    slug: "john-broadus-watson",
+    slug: "wilhelm-wundt",
     order: 1,
+    name: "Wilhelm Wundt",
+    photos: [
+      "/placeholders/wundt/1.jpeg",
+      "/placeholders/wundt/2.jpeg",
+      "/placeholders/wundt/3.jpeg",
+      "/placeholders/wundt/4.jpeg",
+      "/placeholders/wundt/5.jpeg",
+    ],
+    ageLabel: "43 anos",
+    role: "Estruturalista raiz & Fundador de Laboratórios",
+    distanceLabel: "A 9 km de você",
+    sign: "Leão",
+    school: "Estruturalismo",
+    bio: "Hallo! Sou o Wilhelm, mas pode me chamar de Wundt. Dizem que sou o cara que transformou a psicologia em ciência, basicamente criei o primeiro laboratório de psicologia experimental em 1879, em Leipzig. O que mais gosto é de entender do que a mente humana é feita. Meu hobby é analisar sensações, percepções e sentimentos... tudo com cronômetro e método científico, claro. Sou alemão, organizado e curioso. Se você topar sair comigo, talvez eu peça para você observar seus próprios pensamentos durante o encontro... é só ciência, prometo.",
+    likes: [
+      "Estrutura da mente.",
+      "Experimentos bem controlados.",
+      "Medir o tempo de reação das pessoas.",
+      "Filosofia, ciência e conversas profundas."
+    ],
+    dislikes: [
+      "Pessoas que confundem psicologia com adivinhação e conversas totalmente sem método."
+    ],
+    experimentTitle: "Meu experimento favorito",
+    experimentBody: "Treinar pessoas para observar e relatar suas próprias experiências mentais quando recebem estímulos simples. Basicamente, descobrir quais são os ingredientes da consciência.",
+    lookingFor: "Alguém disposto a explorar a própria mente comigo. Se rolar química, a gente até cria um novo experimento juntos.",
+    labPuns: [
+      "Se rolar química, a gente até cria um novo experimento juntos.",
+      "Posso até usar cronômetro, mas essa sensação que você provocou fugiu do método.",
+      "Você não é um estímulo experimental... mas acabou de provocar uma sensação bem interessante na minha consciência."
+    ],
+    matchMessage: "Você não é um estímulo experimental... mas acabou de provocar uma sensação bem interessante na minha consciência.",
+  },
+  {
+    slug: "edward-bradford-titchener",
+    order: 2,
+    name: "Edward Bradford Titchener",
+    photos: [
+      "/placeholders/titchener/1.jpeg",
+      "/placeholders/titchener/2.jpeg",
+      "/placeholders/titchener/3.jpeg",
+      "/placeholders/titchener/4.jpeg",
+    ],
+    ageLabel: "40 anos",
+    role: "Analista da Consciência & Discípulo Oficial do Wundt",
+    distanceLabel: "A 8 km de você",
+    sign: "Capricórnio",
+    school: "Estruturalismo",
+    bio: "Olá! Sou Titchener, inglês de nascimento, mas atualmente morando nos EUA e espalhando por aí a ideia do meu mestre Wundt. Meu objetivo na vida? Descobrir quais são os elementos básicos da mente. Enquanto algumas pessoas simplesmente sentem as coisas, eu prefiro analisar cada sensação em partes. Um café, por exemplo, não é só café... é temperatura, aroma, sabor, intensidade... tudo devidamente observado. Se você sair comigo, prepare-se: talvez eu peça para descrever exatamente o que você está sentindo, sem dizer apenas gostei. Aqui a gente trabalha com introspecção de verdade.",
+    likes: [
+      "Especialista em Estruturalismo (entender a estrutura da mente).",
+      "Introspecção super detalhada.",
+      "Laboratórios, ciência e análises minuciosas.",
+      "Café... mas descrito em pelo menos 10 sensações diferentes."
+    ],
+    dislikes: [
+      "Quem acha que café é só café."
+    ],
+    experimentTitle: "Meu experimento top",
+    experimentBody: "Treinar participantes para descrever suas experiências mentais da forma mais detalhada possível, identificando os elementos básicos da consciência: sensações, imagens e sentimentos.",
+    lookingFor: "Alguém curioso, observador e disposto a analisar cada momento da vida comigo. Um relacionamento onde possamos dissecar juntos cada emoção... cientificamente, claro.",
+    labPuns: [
+      "Aqui a gente trabalha com introspecção de verdade.",
+      "Se você topar, a gente pode dissecar cada emoção juntos... cientificamente, claro.",
+      "Oi! Acho que encontrei um estímulo interessante aqui... vamos ver no que isso dá?"
+    ],
+    matchMessage: "Oi! Acho que encontrei um estímulo interessante aqui... vamos ver no que isso dá?",
+  },
+  {
+    slug: "john-broadus-watson",
+    order: 3,
     name: "John Broadus Watson",
     photos: [
       "/placeholders/watson/1.jpeg",
       "/placeholders/watson/2.jpeg",
       "/placeholders/watson/3.jpeg",
+      "/placeholders/watson/4.jpeg",
     ],
     ageLabel: "35 anos",
     role: "Psicólogo e Fiscal de Atitudes",
@@ -52,12 +124,13 @@ export const psychologists: Psychologist[] = [
   },
   {
     slug: "burrhus-frederic-skinner",
-    order: 2,
+    order: 4,
     name: "Burrhus Frederic Skinner",
     photos: [
       "/placeholders/skinner/1.jpeg",
       "/placeholders/skinner/2.jpeg",
       "/placeholders/skinner/3.jpeg",
+      "/placeholders/skinner/4.jpeg",
     ],
     ageLabel: "55 anos",
     role: "Engenheiro de Pombos e Sommelier de Consequências",

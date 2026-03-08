@@ -78,7 +78,7 @@ export default function MessagesPage() {
           </p>
         </section>
       ) : (
-        <section className="grid gap-3">
+        <section className="grid gap-3 overflow-x-hidden">
           {orderedChats.map((chat) => {
             const profile = profilesBySlug.get(chat.slug);
             if (!profile) {
@@ -92,7 +92,7 @@ export default function MessagesPage() {
               <Link
                 key={chat.slug}
                 href={`/messages/${chat.slug}`}
-                className="w-full rounded-[1.3rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-3 text-left shadow-[0_14px_30px_rgba(0,0,0,0.35)] transition hover:border-fuchsia-300/40"
+                className="w-full max-w-full rounded-[1.3rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-3 text-left shadow-[0_14px_30px_rgba(0,0,0,0.35)] transition hover:border-fuchsia-300/40"
               >
                 <div className="grid grid-cols-[3.8rem_1fr] items-center gap-3">
                   <Image
@@ -102,8 +102,8 @@ export default function MessagesPage() {
                     height={56}
                     className="h-14 w-14 rounded-xl object-cover"
                   />
-                  <div>
-                    <p className="font-semibold text-white">{profile.name}</p>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-white">{profile.name}</p>
                     <p className="mt-1 truncate text-sm text-white/70">
                       {senderLabel}: {lastMessage?.text ?? "Sem mensagem"}
                     </p>
