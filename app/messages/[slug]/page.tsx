@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { uiCopy } from "@/app/ui-copy";
 import { psychologists } from "@/data/psychologists";
 import { buildMessageId, ensureChatForProfile } from "@/lib/chats";
+import { useLocale } from "@/lib/i18n-client";
 import {
   loadChats,
   loadState,
@@ -14,6 +16,7 @@ import {
 } from "@/lib/storage";
 
 export default function MessageThreadPage() {
+  const { t } = useLocale();
   const params = useParams<{ slug: string }>();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
   const [userName, setUserName] = useState("");
@@ -98,12 +101,12 @@ export default function MessageThreadPage() {
             href="/messages"
             className="rounded-full border border-white/20 bg-black/45 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur"
           >
-            Voltar para inbox
+            {t(uiCopy.backToInbox)}
           </Link>
         </header>
         <section className="rounded-[1.6rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-6">
-          <h1 className="text-2xl font-semibold">Conversa nao encontrada</h1>
-          <p className="mt-2 text-white/70">Esse chat ainda nao existe para este perfil.</p>
+          <h1 className="text-2xl font-semibold">{t(uiCopy.conversationNotFound)}</h1>
+          <p className="mt-2 text-white/70">{t(uiCopy.conversationNotFoundBody)}</p>
         </section>
       </main>
     );
@@ -116,10 +119,10 @@ export default function MessageThreadPage() {
           href="/messages"
           className="rounded-full border border-white/20 bg-black/45 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur"
         >
-          Inbox
+          {t(uiCopy.inbox)}
         </Link>
         <div className="text-right">
-          <p className="text-xs uppercase tracking-[0.28em] text-white/55">Conversa</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-white/55">{t(uiCopy.conversation)}</p>
           <h1 className="text-xl font-semibold">{profile.name}</h1>
         </div>
       </header>
@@ -142,14 +145,14 @@ export default function MessageThreadPage() {
 
         {chat.repliedAt ? (
           <p className="mt-4 rounded-xl border border-amber-200/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
-            {profile.name} não está online no momento (por que será?), quando estiver online iremos te notificar.
+            {profile.name} {t(uiCopy.offlineNotice)}
           </p>
         ) : (
           <div className="mt-4 grid grid-cols-[1fr_auto] gap-2">
             <input
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder={`Responder para ${profile.name}...`}
+              placeholder={`${t(uiCopy.replyTo)} ${profile.name}...`}
               className="rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-fuchsia-300/45 focus:outline-none"
             />
             <button
@@ -157,7 +160,7 @@ export default function MessageThreadPage() {
               onClick={handleSendReply}
               className="rounded-xl border border-fuchsia-300/45 bg-fuchsia-500/25 px-4 py-2 text-sm font-semibold text-fuchsia-100"
             >
-              Enviar
+              {t(uiCopy.send)}
             </button>
           </div>
         )}

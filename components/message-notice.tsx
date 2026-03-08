@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Psychologist } from "@/data/psychologists";
+import { localizedText } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n-client";
 
 type MessageNoticeProps = {
   profile: Psychologist | null;
@@ -17,6 +19,7 @@ export function MessageNotice({
   onOpen,
   noticeKeyPrefix = "message-notice",
 }: MessageNoticeProps) {
+  const { t } = useLocale();
   const lastPlayedSlugRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -95,10 +98,14 @@ export function MessageNotice({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[11px] uppercase tracking-[0.24em] text-sky-100/80">
-                  Nova mensagem
+                  {t(localizedText("Nova mensagem", { en: "New message" }))}
                 </p>
                 <p className="mt-1 text-sm font-semibold text-white">
-                  Você tem uma nova mensagem de {profile.name}. Clique para ver.
+                  {t(
+                    localizedText(`Você tem uma nova mensagem de ${profile.name}. Clique para ver.`, {
+                      en: `You have a new message from ${profile.name}. Tap to open.`,
+                    }),
+                  )}
                 </p>
               </div>
               <button

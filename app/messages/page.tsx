@@ -3,11 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { uiCopy } from "@/app/ui-copy";
 import { psychologists } from "@/data/psychologists";
 import { ensureChatForProfile } from "@/lib/chats";
+import { useLocale } from "@/lib/i18n-client";
 import { loadChats, loadState, saveChats, type MatchChat } from "@/lib/storage";
 
 export default function MessagesPage() {
+  const { t } = useLocale();
   const [userName, setUserName] = useState("");
   const [chats, setChats] = useState<MatchChat[]>([]);
 
@@ -51,30 +54,30 @@ export default function MessagesPage() {
     <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-6 text-white">
       <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-white/65">Mensagens</p>
-          <h1 className="mt-2 text-2xl font-semibold">Inbox de {userName || "voce"}</h1>
+          <p className="text-sm uppercase tracking-[0.35em] text-white/65">{t(uiCopy.messagesTitle)}</p>
+          <h1 className="mt-2 text-2xl font-semibold">{t(uiCopy.inboxOf)} {userName || t(uiCopy.youFallback)}</h1>
         </div>
         <div className="flex gap-2">
           <Link
             href="/discover"
             className="rounded-full border border-white/20 bg-black/45 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur"
           >
-            Descobrir
+            {t(uiCopy.discoverButton)}
           </Link>
           <Link
             href="/matches"
             className="rounded-full border border-white/20 bg-black/45 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur"
           >
-            Matches
+            {t(uiCopy.matchesButton)}
           </Link>
         </div>
       </header>
 
       {orderedChats.length === 0 ? (
         <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-          <h2 className="text-2xl font-semibold">Sem conversa por enquanto</h2>
+          <h2 className="text-2xl font-semibold">{t(uiCopy.noConversationTitle)}</h2>
           <p className="mt-3 leading-7 text-white/70">
-            Deu match? As conversas aparecem aqui com a primeira mensagem automatica.
+            {t(uiCopy.noConversationBody)}
           </p>
         </section>
       ) : (
@@ -86,7 +89,7 @@ export default function MessagesPage() {
             }
 
             const lastMessage = chat.messages[chat.messages.length - 1];
-            const senderLabel = lastMessage?.sender === "user" ? "Voce" : profile.name;
+            const senderLabel = lastMessage?.sender === "user" ? t(uiCopy.youLabel) : profile.name;
 
             return (
               <Link
@@ -105,7 +108,7 @@ export default function MessagesPage() {
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-white">{profile.name}</p>
                     <p className="mt-1 truncate text-sm text-white/70">
-                      {senderLabel}: {lastMessage?.text ?? "Sem mensagem"}
+                      {senderLabel}: {lastMessage?.text ?? t(uiCopy.noMessage)}
                     </p>
                   </div>
                 </div>

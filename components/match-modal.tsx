@@ -1,7 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { uiCopy } from "@/app/ui-copy";
 import type { Psychologist } from "@/data/psychologists";
+import { useLocale } from "@/lib/i18n-client";
 
 type MatchModalProps = {
   profile: Psychologist | null;
@@ -10,6 +12,7 @@ type MatchModalProps = {
 };
 
 export function MatchModal({ profile, onClose, onViewProfile }: MatchModalProps) {
+  const { t } = useLocale();
   const heartIcons = [0, 1, 2, 3, 4, 5];
 
   return (
@@ -55,18 +58,18 @@ export function MatchModal({ profile, onClose, onViewProfile }: MatchModalProps)
           >
             <p className="flex items-center justify-center gap-2 text-xs uppercase tracking-[0.35em] text-fuchsia-200 sm:text-sm">
               <span className="text-rose-300">💖</span>
-              Deu Match
+              {t(uiCopy.itsAMatch)}
               <span className="text-rose-300">💖</span>
             </p>
             <h2 className="mt-2 text-3xl font-semibold leading-tight sm:text-4xl">
               {profile.name}
             </h2>
             <p className="mt-2 text-sm text-white/75">
-              Vocês deram match.
+              {t(uiCopy.youMatched)}
             </p>
 
             <p className="mt-4 text-sm leading-6 text-white/75">
-              O chat foi liberado e o perfil completo já está salvo nos seus matches.
+              {t(uiCopy.chatUnlocked)}
             </p>
 
             <button
@@ -74,7 +77,7 @@ export function MatchModal({ profile, onClose, onViewProfile }: MatchModalProps)
               onClick={onViewProfile}
               className="mt-5 w-full rounded-full border border-sky-300/35 bg-sky-500/20 px-4 py-3 text-center text-sm font-semibold tracking-[0.08em] text-sky-100 shadow-lg shadow-sky-500/30 transition hover:scale-[1.01] sm:text-base"
             >
-              Ver perfil
+              {t(uiCopy.viewProfile)}
             </button>
 
             <button
@@ -82,7 +85,7 @@ export function MatchModal({ profile, onClose, onViewProfile }: MatchModalProps)
               onClick={onClose}
               className="mt-5 w-full rounded-full bg-gradient-to-r from-fuchsia-500 via-rose-500 to-red-500 px-4 py-3 text-sm font-semibold tracking-[0.08em] text-white shadow-lg shadow-fuchsia-500/45 transition hover:scale-[1.01] sm:text-base"
             >
-              Continuar explorando
+              {t(uiCopy.continueExploring)}
             </button>
           </motion.div>
         </motion.div>
