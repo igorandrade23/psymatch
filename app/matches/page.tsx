@@ -113,7 +113,6 @@ function MatchesPageContent() {
 
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-white/65">Biblioteca afetiva</p>
           <h1 className="mt-2 text-3xl font-semibold">
             Matches de {userName || "quem estuda com critério"}
           </h1>
