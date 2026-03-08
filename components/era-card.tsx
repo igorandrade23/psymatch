@@ -10,6 +10,8 @@ import {
   type PanInfo,
 } from "framer-motion";
 import type { SchoolEra } from "@/data/psychologists";
+import { useLocale } from "@/lib/i18n-client";
+import { discoverCopy } from "@/app/discover/_lib/discover-copy";
 
 type EraCardProps = {
   era: SchoolEra;
@@ -29,6 +31,7 @@ export function EraCard({
   isBusy = false,
   swipeDirection,
 }: EraCardProps) {
+  const { t } = useLocale();
   const [dragHint, setDragHint] = useState<"left" | "right" | null>(null);
   const dragX = useMotionValue(0);
   const dragRotation = useTransform(dragX, [-420, 0, 420], [-12, 0, 12]);
@@ -148,7 +151,7 @@ export function EraCard({
       <div className="relative isolate h-[54vh] min-h-[25rem] overflow-hidden">
         <Image
           src={era.image}
-          alt={`Capítulo da era ${era.name}`}
+          alt={`Capítulo da era ${t(era.name)}`}
           fill
           sizes="(max-width: 420px) 100vw, 420px"
           className="object-cover"
@@ -159,20 +162,20 @@ export function EraCard({
 
         <div className="absolute inset-x-5 top-5 flex items-center gap-3">
           <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.28em] shadow-lg backdrop-blur ${accentStyles.badge}`}>
-            {era.chapterLabel}
+            {t(era.chapterLabel)}
           </span>
         </div>
 
         <div className="absolute inset-x-5 bottom-5">
           <div className={`rounded-[1.6rem] border border-white/10 bg-black/45 p-5 shadow-2xl backdrop-blur-md ring-1 ${accentStyles.ring}`}>
             <p className="text-[11px] uppercase tracking-[0.34em] text-white/55">
-              {era.periodLabel}
+              {t(era.periodLabel)}
             </p>
             <h1 className="mt-3 text-4xl font-black leading-none text-white">
-              {era.name}
+              {t(era.name)}
             </h1>
             <p className="mt-4 max-w-[18rem] text-lg font-medium leading-7 text-white/88">
-              {era.tagline}
+              {t(era.tagline)}
             </p>
           </div>
         </div>
@@ -181,16 +184,16 @@ export function EraCard({
       <section className="space-y-4 px-5 py-6">
         <div className="rounded-[1.4rem] bg-black/30 p-4 ring-1 ring-white/10">
           <p className="text-[11px] uppercase tracking-[0.28em] text-white/50">
-            Resumo da fase
+            {t(discoverCopy.eraSummaryTitle)}
           </p>
-          <p className="mt-3 leading-7 text-white/88">{era.summary}</p>
+          <p className="mt-3 leading-7 text-white/88">{t(era.summary)}</p>
         </div>
 
         <div className="rounded-[1.4rem] bg-black/30 p-4 ring-1 ring-white/10">
           <p className="text-[11px] uppercase tracking-[0.28em] text-white/50">
-            Clima educacional com piada interna
+            {t(discoverCopy.eraVibeTitle)}
           </p>
-          <p className="mt-3 leading-7 text-white/88">{era.vibe}</p>
+          <p className="mt-3 leading-7 text-white/88">{t(era.vibe)}</p>
         </div>
 
         <button
@@ -201,10 +204,10 @@ export function EraCard({
         >
           <div>
             <p className="text-[11px] uppercase tracking-[0.28em] text-white/45">
-              Próximo passo
+              {t(discoverCopy.eraNextStepTitle)}
             </p>
             <p className={`mt-2 text-sm font-semibold ${accentStyles.cta}`}>
-              {era.cta}
+              {t(era.cta)}
             </p>
           </div>
           <span className="text-2xl text-white/50" aria-hidden>

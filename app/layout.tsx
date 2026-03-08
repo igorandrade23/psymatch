@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Space_Grotesk } from "next/font/google";
+import { I18nProvider } from "@/lib/i18n-client";
 import "./globals.css";
 
 const bodyFont = Space_Grotesk({
@@ -27,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${bodyFont.variable} ${titleFont.variable} antialiased`}>
-        {children}
+        <I18nProvider>
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

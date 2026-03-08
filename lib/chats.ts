@@ -1,5 +1,6 @@
 import type { Psychologist } from "@/data/psychologists";
 import type { MatchChat } from "@/lib/storage";
+import { getCurrentLocale, type LocalizedText, resolveLocalizedValue } from "@/lib/i18n";
 
 export function buildMessageId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -7,6 +8,7 @@ export function buildMessageId() {
 
 export function syncChatsWithMatches(existingChats: MatchChat[], matchedProfiles: Psychologist[]) {
   const bySlug = new Map(existingChats.map((chat) => [chat.slug, chat]));
+  const locale = getCurrentLocale();
 
   for (const profile of matchedProfiles) {
     const existing = bySlug.get(profile.slug);
@@ -17,7 +19,7 @@ export function syncChatsWithMatches(existingChats: MatchChat[], matchedProfiles
           {
             id: buildMessageId(),
             sender: "match",
-            text: profile.matchMessage,
+            text: resolveLocalizedValue(profile.matchMessage, locale),
             createdAt: Date.now(),
           },
         ],
@@ -30,7 +32,7 @@ export function syncChatsWithMatches(existingChats: MatchChat[], matchedProfiles
         {
           id: buildMessageId(),
           sender: "match",
-          text: profile.matchMessage,
+          text: resolveLocalizedValue(profile.matchMessage, locale),
           createdAt: Date.now(),
         },
       ];
@@ -43,8 +45,9 @@ export function syncChatsWithMatches(existingChats: MatchChat[], matchedProfiles
 export function ensureChatForProfile(
   chats: MatchChat[],
   slug: string,
-  matchMessage: string,
+  matchMessage: LocalizedText,
 ): MatchChat[] {
+  const locale = getCurrentLocale();
   if (chats.some((chat) => chat.slug === slug)) {
     return chats;
   }
@@ -55,7 +58,7 @@ export function ensureChatForProfile(
       {
         id: buildMessageId(),
         sender: "match",
-        text: matchMessage,
+        text: resolveLocalizedValue(matchMessage, locale),
         createdAt: Date.now(),
       },
     ],

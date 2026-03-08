@@ -4,10 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { uiCopy } from "@/app/ui-copy";
 import { MessageNotice } from "@/components/message-notice";
 import { ProfileCard } from "@/components/profile-card";
 import { psychologists } from "@/data/psychologists";
 import type { Psychologist } from "@/data/psychologists";
+import { resolveLocalizedValue } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n-client";
 import {
   clearPendingMessageNotice,
   loadPendingMessageNotice,
@@ -15,6 +18,7 @@ import {
 } from "@/lib/storage";
 
 function MatchesPageContent() {
+  const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [userName, setUserName] = useState("");
@@ -78,8 +82,8 @@ function MatchesPageContent() {
       <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-6 text-white">
         <header className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-white/65">Revisar match</p>
-            <h1 className="mt-2 text-2xl font-semibold">Perfil completo</h1>
+            <p className="text-sm uppercase tracking-[0.35em] text-white/65">{t(uiCopy.matchesReview)}</p>
+            <h1 className="mt-2 text-2xl font-semibold">{t(uiCopy.fullProfile)}</h1>
           </div>
 
           <button
@@ -87,7 +91,7 @@ function MatchesPageContent() {
             onClick={() => setSelectedProfile(null)}
             className="rounded-full border border-fuchsia-300/25 bg-fuchsia-400/15 px-4 py-2 text-sm font-semibold text-fuchsia-100"
           >
-            Voltar
+            {t(uiCopy.back)}
           </button>
         </header>
 
@@ -114,7 +118,7 @@ function MatchesPageContent() {
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="mt-2 text-3xl font-semibold">
-            Matches de {userName || "quem estuda com critério"}
+            {t(uiCopy.matchesTitle)} {userName || t(uiCopy.strictStudentFallback)}
           </h1>
         </div>
 
@@ -123,22 +127,22 @@ function MatchesPageContent() {
             href="/messages"
             className="rounded-full border border-sky-300/25 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 shadow-sm backdrop-blur"
           >
-            Mensagens
+            {t(uiCopy.messagesButton)}
           </Link>
           <Link
             href="/discover"
             className="rounded-full border border-white/20 bg-black/45 px-4 py-2 font-semibold text-white shadow-sm backdrop-blur"
           >
-            Voltar
+            {t(uiCopy.back)}
           </Link>
         </div>
       </header>
 
       {matches.length === 0 ? (
         <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-          <h2 className="text-2xl font-semibold">Ainda sem matches</h2>
+          <h2 className="text-2xl font-semibold">{t(uiCopy.noMatchesTitle)}</h2>
           <p className="mt-3 max-w-2xl leading-7 text-white/70">
-            Quando você der like em algum perfil, ele aparece aqui e o chat abre na aba Mensagens.
+            {t(uiCopy.noMatchesBody)}
           </p>
         </section>
       ) : (
@@ -170,11 +174,11 @@ function MatchesPageContent() {
                 >
                   {profile.name}
                 </button>
-                <p className="mt-1 text-sm text-white/80">{profile.ageLabel}</p>
+                <p className="mt-1 text-sm text-white/80">{t(profile.ageLabel)}</p>
                 <p className="mt-1 text-xs uppercase tracking-[0.2em] text-fuchsia-200/90">
-                  {profile.school}
+                  {t(profile.school)}
                 </p>
-                <p className="mt-2 text-sm text-white/70">{profile.distanceLabel}</p>
+                <p className="mt-2 text-sm text-white/70">{t(profile.distanceLabel)}</p>
               </div>
             </article>
           ))}
@@ -190,7 +194,7 @@ export default function MatchesPage() {
       fallback={
         <main className="mx-auto min-h-screen max-w-sm bg-[#060608] px-4 py-8 text-white">
           <section className="mt-10 rounded-[2rem] border border-white/15 bg-gradient-to-b from-[#17151d] to-[#0f0e14] p-8 shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-            <h1 className="text-2xl font-semibold">Carregando matches...</h1>
+            <h1 className="text-2xl font-semibold">{resolveLocalizedValue(uiCopy.matchesButton)}...</h1>
           </section>
         </main>
       }

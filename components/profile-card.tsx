@@ -10,6 +10,8 @@ import {
   type PanInfo,
 } from "framer-motion";
 import type { Psychologist } from "@/data/psychologists";
+import { localizedText } from "@/lib/i18n";
+import { useLocale } from "@/lib/i18n-client";
 
 type ProfileCardProps = {
   profile: Psychologist;
@@ -46,6 +48,19 @@ type ListSection = {
 
 type ProfileSection = TextSection | ListSection;
 
+const profileCardCopy = {
+  distance: localizedText("Distância"),
+  era: localizedText("Época"),
+  about: localizedText("Sobre mim"),
+  lookingFor: localizedText("Buscando"),
+  likes: localizedText("Curte"),
+  dislikes: localizedText("Evita"),
+  funnyMode: localizedText("Modo cãozinho"),
+  labPuns: localizedText("Cantadas de laboratório"),
+  sign: localizedText("Signo"),
+  school: localizedText("Escola"),
+} as const;
+
 export function ProfileCard({
   profile,
   onPass,
@@ -60,6 +75,7 @@ export function ProfileCard({
   photoSwipeEnabled = true,
   fullProfileView = false,
 }: ProfileCardProps) {
+  const { t } = useLocale();
   const [activePhoto, setActivePhoto] = useState(0);
   const [dragPhotoPreview, setDragPhotoPreview] = useState(0);
   const [dragHint, setDragHint] = useState<"left" | "right" | "super" | null>(null);
@@ -73,76 +89,77 @@ export function ProfileCard({
     () => [
       {
         icon: "📍",
-        label: "Distância",
-        value: profile.distanceLabel,
+        label: t(profileCardCopy.distance),
+        value: t(profile.distanceLabel),
       },
       {
         icon: "🗓️",
-        label: "Época",
-        value: profile.ageLabel,
+        label: t(profileCardCopy.era),
+        value: t(profile.ageLabel),
       },
     ],
-    [profile],
+    [profile, t],
   );
 
   const profileSections = useMemo(() => {
+    const experimentTitle = t(profile.experimentTitle);
+    const likes = t(profile.likes);
+    const dislikes = profile.dislikes ? t(profile.dislikes) : [];
+    const labPuns = t(profile.labPuns);
+    const aboutLabel = t(profileCardCopy.about);
+    const lookingForLabel = t(profileCardCopy.lookingFor);
+    const likesLabel = t(profileCardCopy.likes);
+    const dislikesLabel = t(profileCardCopy.dislikes);
+    const funnyModeLabel = t(profileCardCopy.funnyMode);
+    const labPunsLabel = t(profileCardCopy.labPuns);
     const sections: ProfileSection[] = [
       {
-        title: "Sobre mim",
-        eyebrow: "Sobre mim",
+        title: aboutLabel,
+        eyebrow: aboutLabel,
         tone: "text-white/85",
-        content: profile.bio,
+        content: t(profile.bio),
       },
       {
-        title: "Buscando",
-        eyebrow: "Buscando",
+        title: lookingForLabel,
+        eyebrow: lookingForLabel,
         tone: "text-fuchsia-100",
-        content: profile.lookingFor,
+        content: t(profile.lookingFor),
       },
       {
-        title: profile.experimentTitle,
-        eyebrow: profile.experimentTitle,
+        title: experimentTitle,
+        eyebrow: experimentTitle,
         tone: "text-white/85",
-        content: profile.experimentBody,
+        content: t(profile.experimentBody),
       },
     ];
 
-    if (profile.likes.length > 0) {
+    if (likes.length > 0) {
       sections.push({
-        title: "Curte",
-        eyebrow: "Curte",
+        title: likesLabel,
+        eyebrow: likesLabel,
         tone: "text-emerald-100",
-        items: profile.likes,
+        items: likes,
       });
     }
 
-    if (profile.dislikes && profile.dislikes.length > 0) {
+    if (dislikes.length > 0) {
       sections.push({
-        title: "Evita",
-        eyebrow: "Evita",
+        title: dislikesLabel,
+        eyebrow: dislikesLabel,
         tone: "text-rose-100",
-        items: profile.dislikes,
+        items: dislikes,
       });
     }
 
     sections.push({
-      title: isFunnyMode ? "Modo cãozinho" : "Cantadas de laboratório",
-      eyebrow: isFunnyMode ? "Modo cãozinho" : "Cantadas de laboratório",
+      title: isFunnyMode ? funnyModeLabel : labPunsLabel,
+      eyebrow: isFunnyMode ? funnyModeLabel : labPunsLabel,
       tone: "text-amber-100",
-      items: profile.labPuns,
+      items: labPuns,
     });
 
     return sections;
-  }, [
-    isFunnyMode,
-    profile.bio,
-    profile.dislikes,
-    profile.experimentBody,
-    profile.experimentTitle,
-    profile.labPuns,
-    profile.likes,
-    profile.lookingFor,
-  ]);
+  }, [isFunnyMode, profile, t]);
 
   const visibleSections = useMemo(() => {
     return profileSections.filter((section) => {
@@ -428,14 +445,14 @@ export function ProfileCard({
               {profile.name}
             </h1>
             <p className="mt-1 text-2xl font-medium text-white/80">
-              {profile.ageLabel} | {profile.role}
+              {t(profile.ageLabel)} | {t(profile.role)}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-100">
-                Signo: {profile.sign}
+                {t(profileCardCopy.sign)}: {t(profile.sign)}
               </span>
               <span className="rounded-full border border-fuchsia-300/25 bg-fuchsia-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-fuchsia-100">
-                Escola: {profile.school}
+                {t(profileCardCopy.school)}: {t(profile.school)}
               </span>
             </div>
           </div>
