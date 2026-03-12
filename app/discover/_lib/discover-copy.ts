@@ -25,8 +25,8 @@ export const discoverCopy = {
   seeMatchesButton: localizedText("Ver matches", { en: "See matches" }),
   backHomeButton: localizedText("Voltar ao inicio", { en: "Back home" }),
   eraSummaryTitle: localizedText("Resumo da fase", { en: "Era summary" }),
-  eraVibeTitle: localizedText("Piada interna", {
-    en: "Inside joke",
+  eraVibeTitle: localizedText("Vibe da época", {
+    en: "Vibe",
   }),
   eraNextStepTitle: localizedText("Próximo passo", { en: "Next step" }),
   overlayContinue: localizedText("CONTINUAR", { en: "CONTINUE" }),

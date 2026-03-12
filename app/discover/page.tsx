@@ -109,6 +109,7 @@ export default function DiscoverPage() {
             swipeDirection={swipeDirection}
             interactive
             photoSwipeEnabled
+            showIconicPhoto
           />
         ) : null}
       </AnimatePresence>

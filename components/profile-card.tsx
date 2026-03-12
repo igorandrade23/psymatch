@@ -26,6 +26,7 @@ type ProfileCardProps = {
   interactive?: boolean;
   photoSwipeEnabled?: boolean;
   fullProfileView?: boolean;
+  showIconicPhoto?: boolean;
 };
 
 const SWIPE_DISTANCE_PERCENT = 0.42;
@@ -59,6 +60,7 @@ const profileCardCopy = {
   labPuns: localizedText("Cantadas de laboratório"),
   sign: localizedText("Signo"),
   school: localizedText("Escola"),
+  iconicPhoto: localizedText("Foto clássica"),
 } as const;
 
 export function ProfileCard({
@@ -72,6 +74,7 @@ export function ProfileCard({
   interactive = true,
   photoSwipeEnabled = true,
   fullProfileView = false,
+  showIconicPhoto = false,
 }: ProfileCardProps) {
   const { t } = useLocale();
   const [activePhoto, setActivePhoto] = useState(0);
@@ -504,6 +507,26 @@ export function ProfileCard({
             </div>
           ))}
         </div>
+
+        {showIconicPhoto || fullProfileView ? (
+          <div className="mt-8 rounded-[1.25rem] bg-black/30 p-4 ring-1 ring-white/10">
+            <p className="text-[11px] uppercase tracking-[0.28em] text-white/50">
+              {t(profileCardCopy.iconicPhoto)}
+            </p>
+            <div className="mt-3 overflow-hidden rounded-2xl border border-fuchsia-300/20">
+              <Image
+                src={profile.iconicPhoto}
+                alt={`Foto clássica de ${profile.name}`}
+                width={760}
+                height={460}
+                className="h-56 w-full object-cover"
+              />
+            </div>
+            <p className="mt-3 text-sm leading-6 text-white/70">
+              Foto real
+            </p>
+          </div>
+        ) : null}
 
       </section>
     </motion.article>
