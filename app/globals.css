@@ -3,11 +3,15 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+}
+
+html {
+  @apply min-h-screen bg-[radial-gradient(circle_at_top,_#1b1324_0%,_#120f16_52%,_#08070b_100%)];
 }
 
 body {
-  @apply min-h-screen bg-[radial-gradient(circle_at_top,_#fff3ff_0%,_#ffe5ec_30%,_#ffccd9_100%)] bg-grain bg-[size:16px_16px] text-ink;
+  @apply min-h-screen bg-[radial-gradient(circle_at_top,_#1b1324_0%,_#120f16_52%,_#08070b_100%)] text-white;
   font-family: var(--font-body), system-ui, -apple-system, Segoe UI, sans-serif;
 }
 
