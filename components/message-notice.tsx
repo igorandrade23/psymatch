@@ -72,6 +72,20 @@ export function MessageNotice({
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (!profile || typeof window === "undefined") {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      onClose();
+    }, 20_000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [onClose, profile]);
+
   return (
     <AnimatePresence>
       {profile ? (
