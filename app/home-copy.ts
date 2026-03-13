@@ -2,6 +2,9 @@ import { localizedText } from "@/lib/i18n";
 
 export const homeCopy = {
   title: localizedText("PsyMatch"),
+  loadingLabel: localizedText("Preparando uma nova jornada", {
+    en: "Preparing a fresh journey",
+  }),
   subtitle: localizedText(
     "Já imaginou como seriam os principais psicólogos em um app de namoro? Aqui você vai descobrir!",
     {
@@ -16,6 +19,9 @@ export const homeCopy = {
   }),
   nameAria: localizedText("Seu nome", {
     en: "Your name",
+  }),
+  defaultName: localizedText("estudante", {
+    en: "student",
   }),
   continueButton: localizedText("Continuar", {
     en: "Continue",

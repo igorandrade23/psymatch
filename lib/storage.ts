@@ -103,3 +103,11 @@ export function clearPendingMessageNotice() {
   window.localStorage.removeItem(PENDING_MESSAGE_NOTICE_KEY);
 }
 
+export function clearAllLocalStorage() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.clear();
+}
+

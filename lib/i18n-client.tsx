@@ -20,6 +20,7 @@ import {
 type LocaleContextValue = {
   locale: AppLocale;
   setLocale: (locale: AppLocale) => void;
+  resetLocale: () => void;
   t: <T>(value: LocalizedValue<T>) => T;
 };
 
@@ -44,6 +45,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       setLocale: (nextLocale) => {
         setCurrentLocale(nextLocale);
         setLocaleState(nextLocale);
+      },
+      resetLocale: () => {
+        setLocaleState(DEFAULT_LOCALE);
       },
       t: <T,>(localizedValue: LocalizedValue<T>) =>
         resolveLocalizedValue(localizedValue, locale),

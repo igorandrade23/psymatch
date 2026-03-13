@@ -13,11 +13,7 @@ export function IntroForm() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      return;
-    }
+    const trimmedName = name.trim() || t(homeCopy.defaultName);
 
     saveState({
       userName: trimmedName,

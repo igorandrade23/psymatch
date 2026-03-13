@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { AppLoadingScreen } from "@/components/app-loading-screen";
 import { useLocale } from "@/lib/i18n-client";
 import { discoverCopy } from "../_lib/discover-copy";
 
@@ -13,44 +13,7 @@ type CompletionScreenProps = {
 export function DiscoverLoadingScreen() {
   const { t } = useLocale();
 
-  return (
-    <main className="fixed inset-0 z-50 flex items-center justify-center bg-[#060608] text-white">
-      <div className="relative grid w-full max-w-sm place-items-center px-6 text-center">
-        <motion.div
-          className="mb-7 grid h-28 w-28 place-items-center rounded-full border border-fuchsia-300/35 bg-fuchsia-500/20 shadow-[0_0_35px_rgba(240,114,210,0.35)]"
-          initial={{ scale: 0.9, rotate: -8, opacity: 0.7 }}
-          animate={{
-            scale: [0.9, 1.03, 0.9],
-            rotate: [-8, 4, -8],
-            opacity: [0.8, 1, 0.8],
-          }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "easeInOut" }}
-        >
-          <span className="text-[1.6rem] font-black tracking-[0.32em] text-fuchsia-100">
-            🧠
-          </span>
-        </motion.div>
-
-        <motion.h1
-          className="bg-gradient-to-r from-fuchsia-300 via-pink-300 to-sky-300 bg-clip-text text-4xl font-black tracking-[0.24em] text-transparent"
-          initial={{ letterSpacing: "0.24em", opacity: 0.8 }}
-          animate={{ letterSpacing: "0.3em", opacity: 1 }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "easeInOut" }}
-        >
-          {t(discoverCopy.loadingTitle)}
-        </motion.h1>
-
-        <motion.p
-          className="mt-4 text-sm uppercase tracking-[0.35em] text-white/65"
-          initial={{ opacity: 0.5 }}
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "easeInOut" }}
-        >
-          {t(discoverCopy.loadingLabel)}
-        </motion.p>
-      </div>
-    </main>
-  );
+  return <AppLoadingScreen label={t(discoverCopy.loadingLabel)} />;
 }
 
 export function DiscoverCompletionScreen({
